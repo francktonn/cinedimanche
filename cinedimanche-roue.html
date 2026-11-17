@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinédimanche – La roue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060c;--surface:#12111a;--surface2:#181722;--line:#262433;--text:#f4f3f8;--muted:#8a8798;
+--violet:#b06cff;--pink:#f472b6;--gold:#f5c518;--silver:#a9b4c4;--bronze:#cd7f32;--red:#ef4444;
+--font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;
+background-image:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(124,58,237,.22),transparent 70%),
+linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+background-size:auto,48px 48px,48px 48px;background-attachment:fixed}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* nav */
+nav{position:sticky;top:14px;z-index:5;max-width:1060px;margin:14px auto 0;padding:8px 10px 8px 16px;display:flex;align-items:center;gap:6px;
+background:rgba(20,19,28,.82);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px}
+.brand{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;padding-right:12px;margin-right:6px;border-right:1px solid var(--line)}
+.brand svg{width:24px;height:24px;fill:var(--violet)}
+nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px}
+nav a:hover{color:var(--text)}
+nav a.on{background:#fff;color:#0b0a10}
+nav a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.spacer{flex:1}
+#dot{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);padding:8px 14px;border-radius:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)}
+#dot i{width:8px;height:8px;border-radius:50%;background:var(--red)}
+#dot.live{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#86efac}
+#dot.live i{background:#22c55e}
+@media(max-width:760px){nav a{padding:9px 12px}#dot span{display:none}.brand{border-right:0;padding-right:0;margin-right:0}.brand span{display:none}}
+/* onglets : un seul des deux écrans est affiché */
+body.tab-hist .hero,body.tab-hist #roue,body.tab-hist #resultsec,body.tab-hist footer{display:none}
+body:not(.tab-hist) #historique{display:none}
+body.tab-hist #historique{padding-top:44px}
+body.tab-lb .hero,body.tab-lb #roue,body.tab-lb #resultsec,body.tab-lb footer,body.tab-lb #historique{display:none}
+body:not(.tab-lb) #letterboxd{display:none}
+body.tab-rubis .hero,body.tab-rubis #roue,body.tab-rubis #resultsec,body.tab-rubis footer,body.tab-rubis #historique,body.tab-rubis #letterboxd{display:none}
+body:not(.tab-rubis) #rubis{display:none}
+#rubis{padding-top:90px;padding-bottom:90px;display:flex;justify-content:center;width:100%}
+body:not(.tab-rubis) #rubis{display:none}
+#rubis p{margin:0 auto;width:fit-content;max-width:100%;text-align:center;font-size:clamp(30px,6vw,60px);font-weight:900;letter-spacing:-.03em;line-height:1.25;padding:.1em .15em .2em;text-wrap:balance;background:linear-gradient(135deg,#a56bff 20%,#f472b6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#letterboxd{padding-top:44px;padding-bottom:40px}
+.lbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.lbcard{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px 18px;min-width:0;text-align:center;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:18px;transition:transform .15s,border-color .15s,background .15s}
+.lbcard:hover{transform:translateY(-3px);border-color:var(--violet);background:var(--surface2)}
+.lbcard:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.lbpic{width:84px;height:84px;border-radius:50%;background:var(--surface2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:34px;font-weight:800;color:var(--violet);margin-bottom:6px}
+.lbpic img{width:100%;height:100%;object-fit:cover;display:block}
+.lbcard b{font-size:18px;font-weight:800;max-width:100%;overflow-wrap:anywhere}
+.lbcard small{font-size:12px;color:var(--muted);max-width:100%;overflow-wrap:anywhere}
+.lbcard:hover small{color:#00e054}
+/* hero */
+.hero{text-align:center;padding:64px 16px 18px}
+.chip{display:inline-block;padding:7px 16px;border-radius:999px;background:rgba(124,58,237,.15);color:#a56bff;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:clamp(44px,9vw,92px);line-height:.95;font-weight:900;letter-spacing:-.05em;margin:22px 0 18px;
+background:linear-gradient(135deg,#a56bff 20%,#f472b6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:18px;max-width:520px;margin:0 auto;line-height:1.5}
+.hero p b{color:#fff}
+/* controls */
+.controls{max-width:760px;margin:30px auto 0;padding:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+input{font:inherit;font-size:14px;font-weight:500;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;flex:1 1 150px}
+input::placeholder{color:var(--muted)}
+button{font:inherit;font-size:14px;font-weight:700;border:0;border-radius:12px;padding:11px 18px;cursor:pointer;background:#fff;color:#0b0a10}
+button.soft{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+button.soft:hover{color:var(--text)}
+button:disabled{opacity:.4;cursor:not-allowed}
+#status{text-align:center;font-size:13px;color:var(--muted);margin:12px 0 0;min-height:18px}
+/* wheel */
+section{max-width:1060px;margin:0 auto;padding:0 16px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:center;padding:44px 0 30px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tpill{padding:9px 18px;border-radius:999px;font-size:14px;font-weight:700;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.tpill.open{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#86efac}
+.tpill b{font-variant-numeric:tabular-nums;color:#fff;margin-left:6px}
+.wheelcol{display:flex;flex-direction:column;align-items:center;gap:28px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.panel .bar{flex-direction:column;align-items:stretch}
+.panel .bar input{flex:none}
+@media(max-width:900px){.stage{grid-template-columns:1fr}}
+.wheelwrap{position:relative;width:min(92vw,600px);aspect-ratio:1;border-radius:50%;box-shadow:0 0 120px rgba(168,85,247,.28)}
+canvas{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:32px solid #fff;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));z-index:2}
+#spin{font-size:18px;font-weight:800;padding:16px 34px;border-radius:16px;background:linear-gradient(135deg,#a56bff,#f472b6);color:#fff;box-shadow:0 10px 40px rgba(168,85,247,.35)}
+h2{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 28px;font-size:15px}
+/* podium */
+.podium{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;align-items:end;padding:10px 0 50px}
+.slot{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.av{position:relative;width:104px;height:104px;border-radius:50%;background:var(--surface2);border:3px solid var(--c);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:var(--c);box-shadow:0 0 40px color-mix(in srgb,var(--c) 28%,transparent)}
+.slot.r1 .av{width:140px;height:140px;font-size:54px}
+.slot.empty .av{opacity:.35;box-shadow:none}
+.rk{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:var(--c);color:#0b0a10;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.slot b{margin-top:22px;font-size:20px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot small{color:var(--muted);font-size:12px;margin-top:4px}
+.r1{--c:var(--gold)}.r2{--c:var(--silver)}.r3{--c:var(--bronze)}
+.slot.empty b{color:var(--muted)}
+/* players */
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.bar input{flex:0 1 300px}
+#names{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;max-height:440px;overflow:auto}
+@media(prefers-reduced-motion:no-preference){#names li.new{animation:flash 1.4s ease-out}}
+@keyframes flash{0%{background:linear-gradient(135deg,#a56bff,#f472b6);color:#fff;transform:scale(1.2)}100%{transform:none}}
+#names li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
+.empty-msg{color:var(--muted);font-size:14px}
+footer{padding:30px 16px 60px;text-align:center}
+/* overlay */
+#overlay,#botdlg{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:rgba(7,6,12,.92);backdrop-filter:blur(8px);z-index:10}
+#overlay.on,#botdlg.on{display:flex}
+.mbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#fnote{color:var(--muted);font-size:13px;margin-top:12px;min-height:18px}
+.film{display:block;font-style:normal;margin-top:10px;padding:8px 12px;max-width:100%;overflow-wrap:anywhere;font-size:16px;font-weight:700;color:#fff;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
+.film.wait{color:var(--muted);font-weight:500;font-size:13px}
+.botbox{width:min(520px,100%);display:flex;flex-direction:column;max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0;text-align:left}
+.botscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:22px 22px 18px}
+.botfoot{flex:none;padding:14px 22px 16px;border-top:1px solid var(--line);background:var(--surface)}
+.botfoot .brow{margin-top:0}
+.botbox h2{font-size:22px;margin:0 0 6px}
+.botbox p{color:var(--muted);font-size:14px;line-height:1.45;margin:0}
+.botbox label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.botbox input[type=text],.botbox input[type=password],.botbox input[type=number]{width:100%;flex:none}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px}
+.chk input{flex:none;min-width:0;width:16px;height:16px;padding:0}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+#botnote{margin-top:12px;font-size:13px;min-height:18px;color:var(--muted)}
+#overlay{overflow-y:auto;overscroll-behavior:contain}
+#botdlg{overflow:hidden}
+.stabs{display:flex;gap:6px;margin:14px 0 4px;padding:4px;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
+.stab{flex:1;padding:8px 10px;font-size:13px;background:transparent;color:var(--muted);border-radius:9px}
+.stab:hover{color:var(--text)}
+.stab.on{background:#fff;color:#0b0a10}
+.spane{display:none}
+.spane.on{display:block}
+#botdlg .botbox{margin:auto}
+#pollstat{margin-top:12px;font-size:14px;font-weight:600;color:var(--muted);min-height:18px}
+.resbox{margin:18px auto 0;max-width:520px;padding:18px;border:1px solid var(--line);background:var(--surface);border-radius:16px;text-align:left}
+.resbox[hidden]{display:none}
+.rrow{display:flex;gap:16px;align-items:center;margin-top:14px}
+.rrow h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.02em;overflow-wrap:anywhere}
+.rrow p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.rrow p b{color:#fff}
+.poster.big{width:120px;flex:none;margin:0}
+#resultsec{padding-top:10px}
+.poster{display:block;margin-top:12px;width:min(120px,100%);aspect-ratio:2/3;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface2);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.slot.r1 .poster{width:min(150px,100%)}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster[hidden]{display:none}
+#overlay.final .slot:not(.win),#overlay.final .fedit,#overlay.final #listen,#overlay.final #pollbtn,#overlay.final #fnote,#overlay.final #pollstat,#overlay.final #pollres{display:none}
+#overlay.final .podium{grid-template-columns:1fr;justify-items:center;padding-bottom:30px}
+#overlay.final .slot.win .poster{width:min(180px,100%)}
+#overlay.final .slot.win .film{font-size:22px}
+.fedit{display:flex;gap:6px;margin-top:10px;width:100%;max-width:240px}
+.fedit[hidden],.fedit button[hidden]{display:none}
+.fedit input{flex:1 1 0;min-width:0;padding:8px 10px;font-size:13px}
+.fedit button{padding:8px 10px;font-size:13px}
+#historique{padding-top:30px;padding-bottom:20px}
+.hadd{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.hadd input{flex:1 1 180px}
+.hadd #hnum{flex:0 0 90px}
+.hcard .hnum{color:#a56bff;font-weight:700;letter-spacing:.04em}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.hcard{display:flex;flex-direction:column;gap:6px;min-width:0;position:relative}
+.nextbadge{position:absolute;top:8px;left:8px;z-index:2;pointer-events:none;padding:5px 10px;border-radius:999px;background:var(--violet);color:#0b0a10;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 12px var(--neon-soft,rgba(176,108,255,.55))}
+.hcard.isnext .poster{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet),0 0 18px rgba(176,108,255,.5),0 10px 30px rgba(0,0,0,.5)}
+.hcard .poster{width:100%;margin:0}
+.hcard b{font-size:15px;line-height:1.3;min-height:2.6em;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hcard small{color:var(--muted);font-size:12px;line-height:1.4;min-height:1.4em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hcard .hnote{color:var(--gold);font-weight:700}
+.hcard .hnote i{font-style:normal;color:var(--muted);font-weight:500}
+#notedlg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,6,12,.7);backdrop-filter:blur(4px);z-index:12}
+#notedlg.on{display:flex}
+.notebox{width:min(320px,100%);max-height:80vh;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.notebox h3{margin:0 0 2px;font-size:18px;font-weight:800;overflow-wrap:anywhere}
+.notebox p{margin:0 0 12px;color:var(--muted);font-size:13px}
+#notelist,#noterevs{overflow:auto;min-height:0}
+.notecols{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:14px;min-height:0;overflow:auto}
+.notebox.wide{width:min(720px,100%)}
+.notebox.wide .notecols{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}
+@media(max-width:600px){.notebox.wide .notecols{grid-template-columns:1fr}}
+.rev{padding:10px 12px;margin-bottom:10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
+.rev:last-child{margin-bottom:0}
+.rev header{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:6px}
+.rev header b{overflow-wrap:anywhere}
+.rev header span{color:var(--gold);font-weight:700;white-space:nowrap}
+.rev p{margin:0;color:var(--text);font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.hrow{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.hrow:last-child{border-bottom:0}
+.hrow span{color:var(--text);overflow-wrap:anywhere}
+.hrow b{color:var(--gold);white-space:nowrap;font-variant-numeric:tabular-nums}
+.hcard .hdel{margin-top:auto;padding:6px 10px;font-size:12px;align-self:flex-start}
+.noposter{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:40px}
+body.big{overflow:hidden}
+body.big .wheelcol{position:fixed;inset:0;z-index:8;justify-content:center;gap:2.2vh;padding:2vh 16px;background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(124,58,237,.22),transparent 70%),var(--bg)}
+body.big .wheelwrap{width:min(74vh,94vw)}
+body.big #spin{font-size:22px;padding:18px 40px}
+.modal{width:min(900px,100%);text-align:center;margin:auto}
+.modal h2{font-size:clamp(32px,6vw,56px);font-weight:900;letter-spacing:-.04em;margin:0 0 30px;background:linear-gradient(135deg,#a56bff 20%,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media(prefers-reduced-motion:no-preference){#overlay.on .modal{animation:pop .5s cubic-bezier(.2,1.5,.4,1)}}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media(max-width:560px){.av{width:72px;height:72px;font-size:28px}.slot.r1 .av{width:96px;height:96px;font-size:38px}.slot b{font-size:15px}}
+/* ===== onglet Prochain film ===== */
+body.tab-next .hero,body.tab-next #roue,body.tab-next #resultsec,body.tab-next footer{display:none}
+body:not(.tab-next) #prochain{display:none}
+#prochain{padding-top:44px;padding-bottom:50px}
+.nextwrap{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap}
+.nextwrap .poster{width:min(280px,100%);flex:none;margin:0;border-radius:14px}
+.nextinfo{flex:1 1 320px;min-width:0}
+.nextinfo .nnum{color:#a56bff;font-weight:700;letter-spacing:.04em;font-size:13px;text-transform:uppercase}
+.nextinfo h3{font-size:clamp(26px,4.5vw,40px);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin:6px 0 8px;overflow-wrap:anywhere}
+.nextinfo .nmeta{color:var(--muted);font-size:14px;margin:0 0 18px}
+.nextinfo .nsyn{font-size:16px;line-height:1.65;color:var(--text);margin:0 0 22px;max-width:62ch}
+.nextinfo .nsyn.muted{color:var(--muted)}
+.nrate{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:var(--text)}
+.nrate b{font-size:22px;font-weight:800;color:#00e054}
+.nrate small{color:var(--muted);font-size:12px}
+.nextedit{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);max-width:560px}
+.nextedit input{flex:1 1 200px}
+.nextnote{color:var(--muted);font-size:13px;margin:10px 0 0}
+/* ===== historique : bannière défilante + recherche ===== */
+.hbanner{position:relative;overflow:hidden;margin:0 0 20px;padding:16px 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;
+-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.hbanner[hidden]{display:none}
+.hbtrack{display:flex;width:max-content;animation:hmarq var(--dur,60s) linear infinite}
+.hbanner:hover .hbtrack,.hbanner:focus-within .hbtrack{animation-play-state:paused}
+.hbgroup{display:flex;flex:none}
+@keyframes hmarq{to{transform:translateX(-50%)}}
+.hbitem{flex:none;width:84px;margin-right:14px;text-decoration:none;color:var(--text);text-align:center}
+.hbitem .poster{width:84px;margin:0;border-radius:8px}
+.hbitem small{display:block;margin-top:6px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsearch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 22px}
+.hsearch input{flex:1 1 280px;max-width:520px}
+.hres{color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){
+  .hbtrack{animation:none}
+  .hbanner{overflow-x:auto}
+  .hbgroup.dup{display:none}
+}
+/* ===== fenêtre film (cover cliquée) ===== */
+#filmdlg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,6,12,.78);backdrop-filter:blur(5px);z-index:20}
+#filmdlg.on{display:flex}
+.filmbox{position:relative;width:min(860px,100%);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.65),0 0 40px rgba(176,108,255,.18)}
+.fclose{position:absolute;top:12px;right:12px;z-index:2;padding:7px 11px;border-radius:10px}
+.ftop{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.fcover{flex:none;width:min(210px,100%);aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--surface2);border:1px solid var(--violet);box-shadow:0 0 18px rgba(176,108,255,.45),0 10px 30px rgba(0,0,0,.5)}
+.fcover img{width:100%;height:100%;object-fit:cover;display:block}
+.fmain{flex:1 1 280px;min-width:0;padding-right:34px}
+.fmain h3{margin:0 0 6px;font-size:clamp(22px,4vw,32px);font-weight:900;letter-spacing:-.03em;line-height:1.1;overflow-wrap:anywhere}
+.fmain .fmeta{margin:0 0 14px;color:var(--muted);font-size:14px}
+.fmain .fsyn{margin:0 0 16px;font-size:15px;line-height:1.6;color:var(--text)}
+.fmain .fsyn.muted{color:var(--muted)}
+.flink{display:inline-block;padding:9px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:700;text-decoration:none}
+.flink:hover{color:var(--text);border-color:var(--violet)}
+.fbottom{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.fbottom.two{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}
+@media(max-width:700px){.fbottom.two{grid-template-columns:minmax(0,1fr)}}
+.fsec h4{margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a56bff}
+.fsec .favg{margin:0 0 10px;color:var(--gold);font-weight:700;font-size:14px}
+.fsec .fnone{margin:0;color:var(--muted);font-size:14px}
+/* ===== scrollbars violettes (pop-up) ===== */
+#overlay::-webkit-scrollbar,.botscroll::-webkit-scrollbar,#notelist::-webkit-scrollbar,#noterevs::-webkit-scrollbar,.notecols::-webkit-scrollbar,.filmbox::-webkit-scrollbar,#names::-webkit-scrollbar{width:10px;height:10px}
+#overlay::-webkit-scrollbar-track,.botscroll::-webkit-scrollbar-track,#notelist::-webkit-scrollbar-track,#noterevs::-webkit-scrollbar-track,.notecols::-webkit-scrollbar-track,.filmbox::-webkit-scrollbar-track,#names::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px;margin:14px 0}
+#overlay::-webkit-scrollbar-thumb,.botscroll::-webkit-scrollbar-thumb,#notelist::-webkit-scrollbar-thumb,#noterevs::-webkit-scrollbar-thumb,.notecols::-webkit-scrollbar-thumb,.filmbox::-webkit-scrollbar-thumb,#names::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#c08bff,#7c3aed);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+#overlay::-webkit-scrollbar-thumb:hover,.botscroll::-webkit-scrollbar-thumb:hover,#notelist::-webkit-scrollbar-thumb:hover,#noterevs::-webkit-scrollbar-thumb:hover,.notecols::-webkit-scrollbar-thumb:hover,.filmbox::-webkit-scrollbar-thumb:hover,#names::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#d4a8ff,#9a5cf5);background-clip:padding-box}
+#overlay::-webkit-scrollbar-button,.botscroll::-webkit-scrollbar-button,#notelist::-webkit-scrollbar-button,#noterevs::-webkit-scrollbar-button,.notecols::-webkit-scrollbar-button,.filmbox::-webkit-scrollbar-button,#names::-webkit-scrollbar-button{display:none;width:0;height:0}
+#overlay::-webkit-scrollbar-corner,.botscroll::-webkit-scrollbar-corner,#notelist::-webkit-scrollbar-corner,#noterevs::-webkit-scrollbar-corner,.notecols::-webkit-scrollbar-corner,.filmbox::-webkit-scrollbar-corner,#names::-webkit-scrollbar-corner{background:transparent}
+@supports not selector(::-webkit-scrollbar){#overlay,.botscroll,#notelist,#noterevs,.notecols,.filmbox,#names{scrollbar-width:thin;scrollbar-color:#b06cff transparent}}
+/* ===== pop-up ouvert : la page principale ne défile plus ===== */
+html:has(#overlay.on,#botdlg.on,#notedlg.on,#filmdlg.on){overflow:hidden}
+.filmbox,#notelist,#noterevs,.notecols,#names{overscroll-behavior:contain}
+/* ===== effets hover : néon violet ===== */
+:root{--neon:#b06cff;--neon-soft:rgba(176,108,255,.55)}
+.poster{position:relative;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
+.poster img{transition:transform .45s cubic-bezier(.2,.8,.2,1),filter .25s}
+.poster::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;
+background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);
+transform:translateX(-120%);transition:opacity .2s}
+.lbcard,.lbpic{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s,background .15s}
+@media (hover:hover){
+  .poster:hover,.poster:focus-visible{
+    transform:translateY(-4px) scale(1.025);z-index:2;border-color:var(--neon);outline:none;
+    box-shadow:0 0 0 1px var(--neon),0 0 10px 1px var(--neon),0 0 24px 4px var(--neon-soft),0 0 60px 10px rgba(176,108,255,.3),0 16px 36px rgba(0,0,0,.6)}
+  .poster:hover img,.poster:focus-visible img{transform:scale(1.03);filter:saturate(1.15) brightness(1.06)}
+  .poster:hover::after,.poster:focus-visible::after{opacity:1;transform:translateX(120%);transition:transform .8s ease,opacity .2s}
+  .lbcard:hover,.lbcard:focus-visible{
+    transform:translateY(-4px);border-color:var(--neon);
+    box-shadow:0 0 0 1px var(--neon),0 0 10px 1px var(--neon),0 0 26px 4px var(--neon-soft),0 0 60px 10px rgba(176,108,255,.22),inset 0 0 18px rgba(176,108,255,.12)}
+  .lbcard:hover .lbpic,.lbcard:focus-visible .lbpic{
+    transform:scale(1.1);border-color:var(--neon);
+    box-shadow:0 0 8px var(--neon),0 0 20px 2px var(--neon-soft)}
+  .lbcard:hover b{text-shadow:0 0 10px var(--neon-soft)}
+}
+@media (prefers-reduced-motion:reduce){
+  .poster,.poster img,.lbcard,.lbpic{transition:none}
+  .poster:hover,.lbcard:hover,.lbcard:hover .lbpic{transform:none}
+  .poster:hover img{transform:none}.poster::after{display:none}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><mask id="cdclap"><rect width="24" height="24" fill="#fff"/><g stroke="#000" stroke-width="1.5" fill="none"><g transform="rotate(-14 3 8.4)"><path d="M8.2 4.4 6.4 8.4M12.2 4.4 10.4 8.4M16.2 4.4 14.4 8.4M20.2 4.4 18.4 8.4"/></g><path d="M7.4 10.2 5.6 13.4M11.4 10.2 9.6 13.4M15.4 10.2 13.6 13.4M19.4 10.2 17.6 13.4"/></g></mask></defs><g mask="url(#cdclap)"><path d="M3 10.2h18V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><g transform="rotate(-14 3 8.4)"><rect x="3" y="4.4" width="18" height="4" rx="1"/></g></g></svg><span>cinedimanche</span></div>
+  <a href="#roue" class="on" aria-current="page">La roue</a>
+  <a href="#prochain">Prochain film</a>
+  <a href="#historique">Historique</a>
+  <a href="#letterboxd">Letterboxd</a>
+  <a href="#rubis">RUBIS</a>
+  <div class="spacer"></div>
+  <div id="dot"><i></i><span>Non connecté</span></div>
+</nav>
+
+<header class="hero">
+  <span class="chip" id="numchip">● Cinédimanche</span>
+  <h1>La Roue du<br>Cinédimanche</h1>
+  <p>Lance le timer, puis écris <b>Je participe</b> dans le chat pendant 2 minutes pour entrer dans la roue. Trois viewers gagnent le droit de choisir le film.</p>
+  <div class="controls">
+    <input id="channel" placeholder="Chaîne Twitch" aria-label="Chaîne Twitch" autocomplete="off">
+    <button id="connect">Se connecter au chat</button>
+    <input id="manual" placeholder="Ajouter un pseudo" aria-label="Ajouter un pseudo" autocomplete="off">
+    <button id="add" class="soft">Ajouter</button>
+    <button id="botbtn" class="soft">Réglages</button>
+  </div>
+  <div id="status" role="status">Entre le nom de ta chaîne pour écouter le chat.</div>
+  <div id="lastmsg" style="text-align:center;font-size:12px;color:var(--muted);margin-top:4px;min-height:16px;overflow-wrap:anywhere"></div>
+</header>
+
+<section id="roue">
+  <div class="stage">
+    <div class="wheelcol">
+      <div class="tpill" id="tpill"><span id="tlabel">Inscriptions fermées</span> <b id="tleft"></b></div>
+      <div class="wheelwrap"><div class="pointer"></div><canvas id="wheel" width="1200" height="1200"></canvas></div>
+      <div class="actions">
+        <button id="timer" class="soft">Lancer le timer (2 min)</button>
+        <button id="spin" disabled>Tourner la roue</button>
+        <button id="review" class="soft" hidden>Revoir les vainqueurs</button>
+        <button id="big" class="soft">Plein écran</button>
+      </div>
+    </div>
+    <aside class="panel" id="participants">
+      <div class="bar">
+        <div><h2>Participants</h2><p class="sub" style="margin:0"><span id="pcount">0</span> dans la roue</p></div>
+        <input id="search" placeholder="Rechercher un participant…" aria-label="Rechercher un participant">
+      </div>
+      <ul id="names"></ul>
+    </aside>
+  </div>
+</section>
+
+<section id="resultsec" hidden><div class="resbox" id="pageres" hidden></div></section>
+
+<section id="prochain">
+  <h2>Prochain film</h2>
+  <p class="sub">Le film du prochain cinédimanche</p>
+  <div id="nextbox"></div>
+</section>
+
+<section id="historique">
+  <h2>Historique</h2>
+  <p class="sub"><span id="hcount">0</span> films votés</p>
+  <div class="hadd">
+    <input id="hnum" type="number" min="1" max="9999" placeholder="N°" aria-label="Numéro du Cinédimanche">
+    <input id="hfilm" placeholder="Film à ajouter" aria-label="Film à ajouter à l’historique" autocomplete="off" maxlength="80">
+    <input id="hby" placeholder="Demandé par" aria-label="Demandé par" autocomplete="off" maxlength="40">
+    <button id="hadd" class="soft">Ajouter à l’historique</button>
+    <button id="hexport" class="soft">Exporter la liste (.txt)</button>
+    <button id="himport" class="soft" type="button">Importer l’historique</button>
+    <button id="hbackup" class="soft" type="button">Sauvegarde (.json)</button>
+    <input id="hfile" type="file" accept=".js,.json,.txt,text/plain,application/json,text/javascript" hidden>
+  </div>
+  <p id="himpnote" class="hres" role="status" style="margin:-10px 0 18px"></p>
+  <div class="hbanner" id="histbanner" hidden aria-label="Films déjà vus"></div>
+  <div class="hsearch">
+    <input id="hq" type="search" placeholder="Rechercher un film ou un numéro de cinédimanche…" aria-label="Rechercher dans l’historique" autocomplete="off" maxlength="80">
+    <span id="hres" class="hres" aria-live="polite"></span>
+  </div>
+  <div class="hgrid" id="histlist"></div>
+</section>
+
+<section id="rubis">
+  <p>Choisir un film,<br>c’est&nbsp;gratuit&nbsp;!</p>
+</section>
+
+<section id="letterboxd">
+  <h2>Letterboxd</h2>
+  <p class="sub"><span id="lbcount">0</span> viewers · clique sur une carte pour ouvrir son profil Letterboxd</p>
+  <div class="lbgrid" id="lblist"></div>
+</section>
+
+<footer><button id="reset" class="soft">Tout remettre à zéro</button></footer>
+
+<div id="botdlg" role="dialog" aria-modal="true" aria-label="Réglages"><div class="botbox"><div class="botscroll">
+  <h2>Réglages</h2>
+  <div class="stabs" role="tablist">
+    <button type="button" class="stab on" role="tab" data-p="sp-twitch" aria-selected="true">Bot Twitch</button>
+    <button type="button" class="stab" role="tab" data-p="sp-cine" aria-selected="false">Cinédimanche</button>
+    <button type="button" class="stab" role="tab" data-p="sp-discord" aria-selected="false">Discord</button>
+  </div>
+  <div class="spane on" id="sp-twitch" role="tabpanel">
+    <p>Au lancement du timer, le compte du bot écrit le message dans ton chat et l’épingle. Ce compte doit être modérateur de ta chaîne.</p>
+    <label class="f" for="bottoken">Token d’accès du compte bot</label>
+    <input id="bottoken" type="password" placeholder="Colle le token ici" autocomplete="off">
+    <label class="f" for="botmsg">Message</label>
+    <input id="botmsg" type="text" maxlength="500">
+    <label class="f" for="botmin">Durée de l’épingle (minutes, 1 à 30)</label>
+    <input id="botmin" type="number" min="1" max="30" value="5">
+    <label class="chk"><input id="botauto" type="checkbox"> Envoyer automatiquement au lancement du timer</label>
+    <label class="chk"><input id="botremember" type="checkbox"> Mémoriser le token sur cet ordinateur</label>
+  </div>
+  <div class="spane" id="sp-cine" role="tabpanel">
+    <label class="f" for="cnum">Numéro du Cinédimanche en cours</label>
+    <input id="cnum" type="number" min="1" max="9999">
+    <label class="f" for="tmdbkey">Clé API TMDB (affiches des films, gratuite sur themoviedb.org)</label>
+    <input id="tmdbkey" type="password" placeholder="Clé API v3 ou jeton de lecture v4" autocomplete="off">
+    <label class="f">Sauvegarde automatique de l’historique</label>
+    <p id="filest"></p>
+    <div class="brow"><button id="filelink" class="soft" type="button">Choisir le fichier historique.js</button></div>
+  </div>
+  <div class="spane" id="sp-discord" role="tabpanel">
+    <label class="f" for="bothook">Adresse de réception (ex. https://ton-bot.onrender.com/cine)</label>
+    <input id="bothook" type="text" placeholder="https://…/cine" autocomplete="off">
+    <label class="f" for="bothooksecret">Mot de passe (CINE_WEBHOOK_SECRET)</label>
+    <input id="bothooksecret" type="password" placeholder="Le même que dans le .env du bot" autocomplete="off">
+    <label class="f" for="bothookguild">ID du serveur (seulement si le bot est sur plusieurs serveurs)</label>
+    <input id="bothookguild" type="text" placeholder="Facultatif" autocomplete="off">
+  </div>
+</div>
+  <div class="botfoot">
+  <div class="brow"><button id="bottest">Envoyer maintenant</button><button id="botsave" class="soft">Enregistrer</button><button id="botforget" class="soft">Oublier le token</button><button id="botclose" class="soft">Fermer</button></div>
+  <div id="botnote" role="status"></div>
+  </div>
+</div></div>
+<div id="notedlg" role="dialog" aria-modal="true" aria-labelledby="notetitle"><div class="notebox">
+  <h3 id="notetitle"></h3><p id="noteavg"></p>
+  <div class="notecols"><div id="notelist"></div><div id="noterevs" hidden></div></div>
+  <button id="noteclose" class="soft" type="button">Fermer</button>
+</div></div>
+<div id="filmdlg" role="dialog" aria-modal="true" aria-labelledby="filmtitle"><div class="filmbox">
+  <button id="filmclose" class="soft fclose" type="button" aria-label="Fermer">✕</button>
+  <div id="filmbody"></div>
+</div></div>
+<div id="overlay" role="dialog" aria-modal="true" aria-label="Les vainqueurs"><div class="modal"><h2>Les 3 vainqueurs</h2>
+<div class="podium">
+    <div class="slot r2 empty" id="s2"><div class="av"><span>?</span><div class="rk">2</div></div><b>En attente</b><small>2e tirage</small><em class="film" hidden></em></div>
+    <div class="slot r1 empty" id="s1"><div class="av"><span>?</span><div class="rk">1</div></div><b>En attente</b><small>1er tirage</small><em class="film" hidden></em></div>
+    <div class="slot r3 empty" id="s3"><div class="av"><span>?</span><div class="rk">3</div></div><b>En attente</b><small>3e tirage</small><em class="film" hidden></em></div>
+  </div>
+<div class="mbtns"><button id="listen" class="soft">Écouter les films</button><button id="ovtoggle" class="soft" hidden>Voir les 3 vainqueurs</button><button id="pollbtn" hidden>Lancer le vote (2 min)</button><button id="ovclose" class="soft">Fermer</button></div><div id="fnote"></div><div id="pollstat" role="status"></div><div class="resbox" id="pollres" hidden></div></div></div>
+
+<script src="notes.js"></script>
+<script src="historique.js"></script>
+<script>
+(function(){
+  var COLORS=['#6d28d9','#a855f7','#be185d','#ec4899','#4c1d95','#c026d3'];
+  var MAX=3,players=[],winners=[],rot=0,spinning=false,ws=null;
+  var $=function(id){return document.getElementById(id)};
+  var cv=$('wheel'),ctx=cv.getContext('2d');
+  var FONT="Inter,system-ui,sans-serif";
+
+  function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+  function has(n){n=n.toLowerCase();return players.concat(winners).some(function(p){return p.toLowerCase()===n})}
+  var newest=null;
+  function ul0(){var u=$('names');if(u)u.scrollTop=0}
+  function addPlayer(name){
+    name=(name||'').trim();
+    if(!name||has(name)||winners.length>=MAX)return false;
+    players.push(name);newest=name;setTimeout(function(){if(newest===name)newest=null},3000);render();ul0();return true;
+  }
+
+  function draw(){
+    var W=cv.width,c=W/2,R=c-22;
+    ctx.clearRect(0,0,W,W);
+    ctx.save();ctx.translate(c,c);
+    var g=ctx.createLinearGradient(-c,-c,c,c);g.addColorStop(0,'#a56bff');g.addColorStop(1,'#f472b6');
+    ctx.beginPath();ctx.arc(0,0,R+14,0,7);ctx.fillStyle=g;ctx.fill();
+    var n=players.length;
+    if(!n){
+      ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.fillStyle='#12111a';ctx.fill();
+      ctx.fillStyle='#8a8798';ctx.textAlign='center';ctx.font='600 38px '+FONT;
+      ctx.fillText('En attente de participants…',0,12);
+    }else{
+      var seg=Math.PI*2/n;ctx.rotate(rot);
+      for(var i=0;i<n;i++){
+        ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,R,i*seg,(i+1)*seg);ctx.closePath();
+        ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();
+        if(n>1){ctx.strokeStyle='#07060c';ctx.lineWidth=3;ctx.stroke()}
+        if(n<=80){
+          ctx.save();ctx.rotate((i+.5)*seg);ctx.textAlign='right';ctx.fillStyle='#fff';
+          var fs=Math.max(14,Math.min(44,R*seg*.55));ctx.font='700 '+fs+'px '+FONT;
+          var t=players[i];if(t.length>16)t=t.slice(0,15)+'…';
+          ctx.fillText(t,R-30,fs*.35);ctx.restore();
+        }
+      }
+    }
+    ctx.restore();
+    ctx.beginPath();ctx.arc(c,c,52,0,7);ctx.fillStyle='#07060c';ctx.fill();
+    ctx.lineWidth=8;ctx.strokeStyle='#a56bff';ctx.stroke();
+  }
+
+  var TIMER=120,endAt=0,tick=null,wasOpen=false,fsUs=false;
+  /* mode grand écran : la roue occupe toute la fenêtre pour le stream */
+  function setBig(on,fs){
+    document.body.classList.toggle('big',on);
+    $('big').textContent=on?'Quitter le plein écran':'Plein écran';
+    if(on){
+      window.scrollTo(0,0);
+      if(fs&&document.documentElement.requestFullscreen){fsUs=true;document.documentElement.requestFullscreen().catch(function(){fsUs=false})}
+    }else if(document.fullscreenElement){
+      fsUs=false;document.exitFullscreen().catch(function(){});
+    }
+  }
+  function isOpen(){return endAt>Date.now()}
+  function fmt(t){var m=Math.floor(t/60),r=t%60;return m+':'+(r<10?'0':'')+r}
+  function syncSpin(){
+    var b=$('spin'),done=winners.length>=MAX;
+    b.textContent=done?'Tirage terminé':'Tourner la roue ('+(winners.length+1)+'/'+MAX+')';
+    b.disabled=done||spinning||!players.length||isOpen();
+    $('timer').disabled=done||spinning;
+  }
+  function updateTimer(){
+    var left=Math.max(0,Math.ceil((endAt-Date.now())/1000)),pill=$('tpill');
+    if(left>0){
+      pill.className='tpill open';$('tlabel').textContent='Inscriptions ouvertes';$('tleft').textContent=fmt(left);
+      $('timer').textContent='Arrêter le timer';wasOpen=true;
+    }else{
+      if(tick){clearInterval(tick);tick=null}
+      endAt=0;pill.className='tpill';$('tlabel').textContent='Inscriptions fermées';$('tleft').textContent='';
+      $('timer').textContent='Lancer le timer (2 min)';
+      if(wasOpen){wasOpen=false;if(winners.length<MAX)setBig(true,false)}
+    }
+    syncSpin();
+  }
+  function toggleTimer(){
+    if(isOpen()){endAt=0;updateTimer();return}
+    if(spinning||winners.length>=MAX)return;
+    if(!ws||ws.readyState!==1)status('Pense à te connecter au chat pour recevoir les « Je participe ».');
+    endAt=Date.now()+TIMER*1000;
+    if(tick)clearInterval(tick);
+    tick=setInterval(updateTimer,250);updateTimer();botAuto();
+  }
+  var listening=false,films=[];
+  function winnerIndex(n){n=(n||'').toLowerCase();for(var i=0;i<winners.length;i++)if(winners[i].toLowerCase()===n)return i;return -1}
+  function allFilms(){return winners.length>=MAX&&winners.every(function(w,k){return !!films[k]})}
+  function listenUI(note){
+    $('listen').textContent=listening?'Arrêter l’écoute':'Écouter les films';
+    $('fnote').textContent=note!==undefined?note:(listening?'En écoute : le prochain message de chaque gagnant devient son film.':(allFilms()?'Les trois films sont enregistrés.'+(tmdbKey()?'':' Ajoute une clé TMDB (bouton Réglages) pour afficher les affiches.'):''));
+  }
+  function onChat(login,display,text){
+    if(!listening)return;
+    var i=winnerIndex(display);if(i<0)i=winnerIndex(login);
+    if(i<0||films[i])return;
+    text=(text||'').trim();
+    if(!text||text.charAt(0)==='!'||text.charAt(0)==='\x01'||norm(text).indexOf('je participe')>-1)return;
+    films[i]=text.slice(0,80);
+    if(allFilms())listening=false;
+    listenUI();render();
+  }
+  function toggleListen(){
+    if(listening){listening=false;listenUI();render();return}
+    if(winners.length<MAX)return;
+    if(!ws||ws.readyState!==1){listenUI('Connecte-toi d’abord au chat pour écouter les messages.');return}
+    if(allFilms()){films=[];result=null}
+    listening=true;listenUI();render();
+  }
+  var bot={ctx:null},sentTexts=[];
+  function noteSent(t){sentTexts.push((t||'').trim());if(sentTexts.length>20)sentTexts.shift()}
+  function sentHas(t){return sentTexts.indexOf((t||'').trim())>-1}
+  function isBot(l){l=(l||'').toLowerCase();return l==='cinedimanchebot'||!!(bot.ctx&&bot.ctx.login&&bot.ctx.login.toLowerCase()===l)}
+  function chanName(){return $('channel').value.trim().replace(/^#/,'').toLowerCase()}
+  function botCfg(){return{token:($('bottoken').value||'').trim().replace(/^oauth:/i,''),msg:($('botmsg').value||'').trim(),
+    min:Math.max(1,Math.min(30,parseInt($('botmin').value,10)||5)),auto:$('botauto').checked,remember:$('botremember').checked}}
+  function botNote(t,bad){var n=$('botnote');n.textContent=t||'';n.style.color=bad?'#fca5a5':'var(--muted)'}
+  function botSave(){
+    var c=botCfg(),o={msg:c.msg,min:c.min,auto:c.auto,remember:c.remember};
+    if(c.remember)o.token=c.token;
+    try{localStorage.setItem('cine_bot',JSON.stringify(o))}catch(e){}
+  }
+  function botLoad(){
+    $('botmsg').value='Envoyez "Je participe" pour rejoindre la roue !';
+    try{var o=JSON.parse(localStorage.getItem('cine_bot')||'null');if(!o)return;
+      if(o.msg)$('botmsg').value=o.msg;if(o.min)$('botmin').value=o.min;
+      $('botauto').checked=!!o.auto;$('botremember').checked=!!o.remember;if(o.token)$('bottoken').value=o.token}catch(e){}
+  }
+  async function botAuth(c){
+    if(bot.ctx&&bot.ctx.token===c.token)return bot.ctx;
+    var r=await fetch('https://id.twitch.tv/oauth2/validate',{headers:{Authorization:'OAuth '+c.token}});
+    if(!r.ok)throw new Error('Token refusé par Twitch (invalide ou expiré).');
+    var j=await r.json(),sc=j.scopes||[];
+    var miss=['user:write:chat','moderator:manage:chat_messages'].filter(function(x){return sc.indexOf(x)<0});
+    if(miss.length)throw new Error('Il manque des autorisations sur le token : '+miss.join(', ')+'.');
+    bot.ctx={token:c.token,clientId:j.client_id,userId:j.user_id,login:j.login,scopes:sc};
+    return bot.ctx;
+  }
+  async function botSend(){
+    var c=botCfg(),ch=chanName();
+    if(!c.token)throw new Error('Colle d’abord le token du compte bot.');
+    if(!c.msg)throw new Error('Le message est vide.');
+    noteSent(c.msg);
+    if(!ch)throw new Error('Entre le nom de ta chaîne en haut de la page.');
+    var a=await botAuth(c),h={Authorization:'Bearer '+a.token,'Client-Id':a.clientId};
+    var u=await fetch('https://api.twitch.tv/helix/users?login='+encodeURIComponent(ch),{headers:h});
+    if(u.status===401){bot.ctx=null;throw new Error('Token refusé par Twitch (expiré ?).')}
+    var uj=await u.json();
+    if(!uj.data||!uj.data[0])throw new Error('Chaîne introuvable : '+ch+'.');
+    var bid=uj.data[0].id;
+    var m=await fetch('https://api.twitch.tv/helix/chat/messages',{method:'POST',
+      headers:{Authorization:h.Authorization,'Client-Id':h['Client-Id'],'Content-Type':'application/json'},
+      body:JSON.stringify({broadcaster_id:bid,sender_id:a.userId,message:c.msg})});
+    if(!m.ok)throw new Error('Envoi refusé par Twitch (code '+m.status+').');
+    var d=((await m.json()).data||[])[0];
+    if(!d||!d.is_sent)throw new Error('Message non envoyé'+(d&&d.drop_reason?' : '+d.drop_reason.message:'.'));
+    var p=await fetch('https://api.twitch.tv/helix/chat/pins?broadcaster_id='+bid+'&moderator_id='+a.userId+'&message_id='+encodeURIComponent(d.message_id)+'&duration_seconds='+(c.min*60),{method:'PUT',headers:h});
+    if(!p.ok)return{ok:false,t:'Message envoyé, mais l’épinglage a échoué (code '+p.status+'). Le compte bot doit être modérateur de la chaîne.'};
+    return{ok:true,t:'Message envoyé et épinglé '+c.min+' min.'};
+  }
+  async function botRun(){
+    $('status').textContent='Bot : envoi du message…';botNote('Envoi en cours…');
+    try{var r=await botSend();$('status').textContent='Bot : '+r.t;botNote(r.t,!r.ok)}
+    catch(e){$('status').textContent='Bot : '+e.message;botNote(e.message,true)}
+  }
+  function botAuto(){if(botCfg().auto)botRun()}
+  var posters={},pending={};
+  function tmdbKey(){return ($('tmdbkey').value||'').trim()}
+  function parseFilm(t){var m=t.match(/^(.*?)[\s(\[]*((?:19|20)\d\d)[)\]]?\s*$/);return m&&m[1].trim()?{q:m[1].trim(),y:m[2]}:{q:t.trim(),y:''}}
+  function loadPoster(title){
+    var k=tmdbKey();
+    if(!title||!k||(title in posters)||pending[title])return;
+    pending[title]=1;
+    var p=parseFilm(title),h={};
+    function search(withYear){
+      var u='https://api.themoviedb.org/3/search/movie?include_adult=false&language=fr-FR&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'');
+      if(k.length>40)h.Authorization='Bearer '+k;else u+='&api_key='+encodeURIComponent(k);
+      return fetch(u,{headers:h}).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()}).then(function(j){
+        return (j.results||[]).filter(function(x){return x.poster_path})[0]||null});
+    }
+    search(true).then(function(r){return r||(p.y?search(false):null)}).then(function(r){
+      posters[title]=r?'https://image.tmdb.org/t/p/w342'+r.poster_path:'';
+    }).catch(function(){posters[title]=''}).then(function(){delete pending[title];render()});
+  }
+  /* ---- vote des films ---- */
+  var poll=null,result=null,showAll=false,POLLSEC=120;
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function short(s,n){return s.length>n?s.slice(0,n-1)+'…':s}
+  function pollNote(t,bad){var n=$('pollstat');n.textContent=t||'';n.style.color=bad?'#fca5a5':'var(--muted)'}
+  function recount(p){var c=[0,0,0];for(var k in p.votes)c[p.votes[k]]++;p.counts=c}
+  function pollChat(login,text){
+    if(!poll||poll.mode!=='chat'||poll.finishing)return;
+    var t=(text||'').trim().replace(/^!/,'');
+    if(/^[1-3]$/.test(t))poll.votes[login.toLowerCase()]=parseInt(t,10)-1;
+  }
+  function pollUpdate(){
+    var p=poll;if(!p)return;
+    var left=Math.max(0,Math.ceil((p.end-Date.now())/1000));
+    if(p.mode==='chat')recount(p);
+    else if(!p.finishing&&Date.now()-p.last>5000)pollFetch();
+    if(!p.finishing)pollNote((p.mode==='twitch'?'Sondage Twitch':'Vote dans le chat (1, 2 ou 3)')+' · '+fmt(left)+' · '+p.counts.map(function(n,i){return short(films[i],18)+' : '+n}).join(' · ')+(p.warn?' · '+p.warn:''));
+    if(left<=0&&!p.finishing){p.finishing=true;pollFinish()}
+  }
+  async function pollFetch(){
+    var p=poll;if(!p||p.mode!=='twitch')return;
+    p.last=Date.now();
+    try{
+      var r=await fetch('https://api.twitch.tv/helix/polls?broadcaster_id='+p.bid+'&id='+encodeURIComponent(p.id),{headers:p.h});
+      if(!r.ok)return;
+      var d=((await r.json()).data||[])[0];
+      if(d&&d.choices)p.counts=d.choices.map(function(c){return c.votes||0});
+    }catch(e){}
+  }
+  async function botChat(a,h,bid,msg){
+    noteSent(msg);
+    var m=await fetch('https://api.twitch.tv/helix/chat/messages',{method:'POST',
+      headers:{Authorization:h.Authorization,'Client-Id':h['Client-Id'],'Content-Type':'application/json'},
+      body:JSON.stringify({broadcaster_id:bid,sender_id:a.userId,message:msg})});
+    if(!m.ok)throw new Error('Envoi refusé par Twitch (code '+m.status+').');
+    var d=((await m.json()).data||[])[0];
+    if(!d||!d.is_sent)throw new Error('Message non envoyé.');
+    return d;
+  }
+  async function pollFinish(){
+    var p=poll;if(!p)return;
+    clearInterval(p.timer);
+    pollNote('Décompte des votes…');
+    if(p.mode==='twitch'){await sleep(2500);await pollFetch()}
+    else recount(p);
+    if(poll!==p)return;
+    var max=Math.max.apply(null,p.counts),tied=[],total=p.counts[0]+p.counts[1]+p.counts[2];
+    p.counts.forEach(function(n,i){if(n===max)tied.push(i)});
+    var k=tied[Math.floor(rand(tied.length))];
+    result={k:k,counts:p.counts.slice(),total:total,tie:total>0&&tied.length>1,num:curNum};showAll=false;
+    histAdd(films[k],winners[k],Date.now(),round,curNum);
+    poll=null;pollNote('Vote terminé.');render();cineSync(films[k],winners[k],curNum);
+    if(p.mode==='chat'){
+      try{
+        var msg='🎬 Film choisi : '+films[k]+' (proposé par '+winners[k]+')'+(total?' avec '+p.counts[k]+' vote'+(p.counts[k]>1?'s':'')+(result.tie?', égalité départagée au hasard':''):', aucun vote : tiré au sort');
+        await botChat(p.a,p.h,p.bid,msg);
+      }catch(e){}
+    }
+  }
+  async function pollStart(){
+    if(poll){pollCancel();return}
+    if(!allFilms())return;
+    var c=botCfg(),ch=chanName(),b=$('pollbtn');
+    b.disabled=true;pollNote('Préparation du vote…');
+    try{
+      if(!c.token)throw new Error('Colle d’abord le token du compte bot (bouton Réglages).');
+      if(!ch)throw new Error('Entre le nom de ta chaîne en haut de la page.');
+      var a=await botAuth(c),h={Authorization:'Bearer '+a.token,'Client-Id':a.clientId};
+      var u=await fetch('https://api.twitch.tv/helix/users?login='+encodeURIComponent(ch),{headers:h});
+      if(u.status===401){bot.ctx=null;throw new Error('Token refusé par Twitch (expiré ?).')}
+      var uj=await u.json();
+      if(!uj.data||!uj.data[0])throw new Error('Chaîne introuvable : '+ch+'.');
+      var bid=uj.data[0].id;
+      var p={votes:{},counts:[0,0,0],end:0,a:a,h:h,bid:bid,mode:'chat',last:Date.now(),finishing:false,id:null};
+      if((a.scopes||[]).indexOf('channel:manage:polls')>-1){
+        var r=await fetch('https://api.twitch.tv/helix/polls',{method:'POST',
+          headers:{Authorization:h.Authorization,'Client-Id':h['Client-Id'],'Content-Type':'application/json'},
+          body:JSON.stringify({broadcaster_id:bid,title:'Quel film regarde-t-on ?',choices:films.map(function(f){return{title:f.slice(0,25)}}),duration:POLLSEC})});
+        if(r.ok){var d=((await r.json()).data||[])[0];if(d){p.mode='twitch';p.id=d.id}}
+      }
+      if(p.mode==='chat'){
+        if(!ws||ws.readyState!==1)throw new Error('Connecte-toi au chat pour compter les votes (1, 2 ou 3).');
+        var sent=await botChat(a,h,bid,'🎬 Vote pour le film ! Tape 1 = '+films[0]+' | 2 = '+films[1]+' | 3 = '+films[2]+' (2 min)');
+        try{
+          var pr=await fetch('https://api.twitch.tv/helix/chat/pins?broadcaster_id='+bid+'&moderator_id='+a.userId+'&message_id='+encodeURIComponent(sent.message_id)+'&duration_seconds='+POLLSEC,{method:'PUT',headers:h});
+          if(!pr.ok)p.warn='message non épinglé (code '+pr.status+')';
+        }catch(e){p.warn='message non épinglé'}
+      }
+      listening=false;listenUI();
+      result=null;p.end=Date.now()+POLLSEC*1000;poll=p;
+      p.timer=setInterval(pollUpdate,1000);pollUpdate();
+    }catch(e){pollNote(e.message,true)}
+    b.disabled=false;render();
+  }
+  function pollCancel(){
+    var p=poll;if(!p)return;
+    clearInterval(p.timer);poll=null;
+    if(p.mode==='twitch'&&p.id){
+      fetch('https://api.twitch.tv/helix/polls',{method:'PATCH',
+        headers:{Authorization:p.h.Authorization,'Client-Id':p.h['Client-Id'],'Content-Type':'application/json'},
+        body:JSON.stringify({broadcaster_id:p.bid,id:p.id,status:'TERMINATED'})}).catch(function(){});
+    }
+    pollNote('Vote annulé.');render();
+  }
+  function buildResult(box){
+    box.innerHTML='';box.hidden=!result;
+    if(!result)return;
+    var k=result.k,f=films[k]||'';
+    box.appendChild(el('span','chip','🏆 Film choisi'+(result.num?' · Cinédimanche n°'+result.num:'')));
+    var row=el('div','rrow'),src=posters[f];
+    if(src){
+      var a=el('a','poster big');a.setAttribute('data-film',f);a.href='https://letterboxd.com/search/films/'+encodeURIComponent(f)+'/';a.target='_blank';a.rel='noopener';
+      var im=el('img');im.src=src;im.alt='Affiche : '+f;a.appendChild(im);row.appendChild(a);
+    }
+    var t=el('div');t.appendChild(el('h3','',f));
+    var p1=el('p');p1.appendChild(document.createTextNode('Proposé par '));p1.appendChild(el('b','',winners[k]||''));t.appendChild(p1);
+    t.appendChild(el('p','',result.total?result.counts[k]+' vote'+(result.counts[k]>1?'s':'')+(result.tie?' · égalité départagée au hasard':''):'Aucun vote : tiré au sort'));
+    row.appendChild(t);box.appendChild(row);
+  }
+  function renderPoll(){
+    var b=$('pollbtn');
+    b.hidden=!allFilms();
+    b.textContent=poll?'Annuler le vote':(result?'Relancer le vote (2 min)':'Lancer le vote (2 min)');
+    $('listen').disabled=!!poll;
+    buildResult($('pollres'));buildResult($('pageres'));
+    $('resultsec').hidden=!result;
+    var fin=!!result&&!showAll;
+    $('overlay').classList.toggle('final',fin);
+    document.querySelector('#overlay .modal h2').textContent=fin?'Le film choisi':'Les 3 vainqueurs';
+    var tg=$('ovtoggle');tg.hidden=!result;
+    tg.textContent=showAll?'Voir seulement le gagnant':'Voir les 3 vainqueurs';
+  }
+  /* envoi du film choisi au bot Discord (annonce du dimanche à 12h) */
+  function hookSave(){try{localStorage.setItem('cine_hook',JSON.stringify({u:$('bothook').value.trim(),s:$('bothooksecret').value.trim(),g:$('bothookguild').value.trim()}))}catch(e){}}
+  function cineSync(film,by,num,tries){
+    var u=$('bothook').value.trim(),sec=$('bothooksecret').value.trim();
+    if(!u||!sec){pollNote('Vote terminé. Film NON envoyé au bot : renseigne l’adresse et le mot de passe du bot dans les Réglages.',true);return}
+    tries=tries||1;
+    pollNote('Vote terminé. Envoi du film au bot Discord'+(tries>1?' (tentative '+tries+'/4, le bot se réveille peut-être)':'')+'…');
+    fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({secret:sec,film:film,by:by,num:num,poster:posters[film]||'',guild_id:$('bothookguild').value.trim()})})
+      .then(function(r){return r.json().catch(function(){return{}})})
+      .then(function(j){pollNote(j.ok?'Vote terminé. Film envoyé au bot Discord ✅':'Vote terminé. Bot Discord : '+(j.error||'réponse inattendue'),!j.ok)})
+      .catch(function(){
+        if(tries<4){setTimeout(function(){cineSync(film,by,num,tries+1)},15000)}
+        else pollNote('Vote terminé. Bot injoignable après 4 tentatives (adresse incorrecte, bot pas à jour ou hors ligne). Utilise /cine film.',true);
+      });
+  }
+  function tmdbSave(){try{localStorage.setItem('cine_tmdb',tmdbKey())}catch(e){}}
+  /* ---- historique des films votés ---- */
+  var hist=[],histSig='',round=Date.now(),histQ='',bannerSig='';
+  function showNotes(film,nt){
+    var rt=nt.ratings||{},box=$('notelist');
+    $('notetitle').textContent=film;
+    $('noteavg').textContent='★ '+nt.avg.toFixed(2).replace('.',',')+' / 5 · '+nt.count+' note'+(nt.count>1?'s':'');
+    box.innerHTML='';
+    Object.keys(rt).sort(function(a,b){return rt[b]-rt[a]||a.localeCompare(b)}).forEach(function(u){
+      var rw=el('div','hrow');rw.appendChild(el('span','',u));rw.appendChild(el('b','','★ '+rt[u].toFixed(1).replace('.',',')));box.appendChild(rw);
+    });
+    var rv=$('noterevs'),revs=nt.reviews||[];
+    rv.innerHTML='';rv.hidden=!revs.length;
+    document.querySelector('#notedlg .notebox').classList.toggle('wide',revs.length>0);
+    revs.forEach(function(r){
+      var d=el('div','rev'),hd=el('header');
+      hd.appendChild(el('b','',r.user));
+      if(rt[r.user])hd.appendChild(el('span','','★ '+rt[r.user].toFixed(1).replace('.',',')));
+      d.appendChild(hd);d.appendChild(el('p','',r.text));rv.appendChild(d);
+    });
+    $('notedlg').classList.add('on');$('noteclose').focus();
+  }
+  function closeNotes(){$('notedlg').classList.remove('on')}
+  function histPersist(){try{localStorage.setItem('cine_hist',JSON.stringify(hist))}catch(e){}}
+  function histSave(){histPersist();touch()}
+  function histLoad(){
+    try{
+      var D=window.CINE_DATA;
+      if(D&&Array.isArray(D.hist)&&(D.saved||0)>savedTs()){
+        /* le fichier historique.js est plus récent que ce navigateur : on le charge */
+        hist=D.hist.filter(function(h){return h&&typeof h.film==='string'});histPersist();
+        try{
+          if(D.num>0)localStorage.setItem('cine_num',String(D.num));
+          if(D.next)localStorage.setItem('cine_next',D.next);else localStorage.removeItem('cine_next');
+          localStorage.setItem('cine_saved',String(D.saved));
+        }catch(e){}
+        return;
+      }
+      var raw=localStorage.getItem('cine_hist');
+      if(raw===null){hist=[{film:'Alice aux pays des merveilles',by:'Aya_1713',date:0,round:0,num:65}];histPersist();return}
+      var a=JSON.parse(raw);
+      if(Array.isArray(a))hist=a.filter(function(h){return h&&typeof h.film==='string'});
+      hist.forEach(function(h){if(!h.num&&h.film==='Alice aux pays des merveilles'&&h.by==='Aya_1713')h.num=65});
+      histPersist();
+    }catch(e){}
+  }
+  function histAdd(film,by,date,rd,num){
+    film=(film||'').trim();if(!film)return;
+    if(rd)hist=hist.filter(function(h){return h.round!==rd});
+    hist.unshift({film:film,by:(by||'').trim(),date:date||0,round:rd||0,num:num||0});
+    histSave();histSig='';renderHistory();
+    if(typeof renderNext==='function'&&$('nextbox'))renderNext();
+  }
+  function renderHistory(){
+    var sig=hist.map(function(h){return h.film+'|'+h.by+'|'+h.date+'|'+h.num+'|'+(posters[h.film]||'')}).join('§')+'|'+(tmdbKey()?1:0)+'|'+nextCurrent().t+'|'+histQ;
+    if(sig===histSig)return;
+    histSig=sig;
+    var box=$('histlist');box.innerHTML='';
+    $('hcount').textContent=hist.length;
+    if(!hist.length){renderBanner([]);$('hres').textContent='';box.appendChild(el('p','empty-msg','Aucun film pour l’instant.'));return}
+    /* ordre décroissant : n°65, 64, 63… (sans numéro à la fin, du plus récent au plus ancien) */
+    var sorted=hist.slice().sort(function(a,b){return (b.num||0)-(a.num||0)||(b.date||0)-(a.date||0)});
+    var anyDate=hist.some(function(x){return x.date});
+    var nx=nextCurrent(),nextH=null;
+    if(nx.t){
+      if(nx.manual)nextH=sorted.filter(function(x){return x.film.toLowerCase()===nx.t.toLowerCase()})[0]||null;
+      else nextH=sorted[0];
+    }
+    /* bannière : tous les films déjà vus (le prochain film n'en fait pas partie) */
+    renderBanner(sorted.filter(function(x){return x!==nextH}));
+    var shown=sorted.filter(function(h){return histMatch(h,histQ)});
+    $('hres').textContent=histQ.trim()?(shown.length+' résultat'+(shown.length>1?'s':'')+' sur '+sorted.length):'';
+    if(!shown.length)box.appendChild(el('p','empty-msg','Aucun film trouvé pour « '+histQ.trim()+' ».'));
+    shown.forEach(function(h){
+      loadPoster(h.film);
+      var c=el('div','hcard'+(h===nextH?' isnext':'')),src=posters[h.film];
+      var a=el('a','poster');a.setAttribute('data-film',h.film);a.href='https://letterboxd.com/search/films/'+encodeURIComponent(h.film)+'/';a.target='_blank';a.rel='noopener';a.title=h.film+' – voir les détails';
+      if(src){var im=el('img');im.src=src;im.alt='Affiche : '+h.film;im.loading='lazy';a.appendChild(im)}
+      else a.appendChild(el('span','noposter','🎬'));
+      c.appendChild(a);
+      if(h===nextH)c.appendChild(el('span','nextbadge','Prochain film'));
+      var NB='\u00a0';
+      c.appendChild(el('small','hnum',h.num?'Cinédimanche n°'+h.num:NB));
+      var tt=el('b','',h.film);tt.title=h.film;c.appendChild(tt);
+      var byl=el('small','','Demandé par '+h.by);byl.title=byl.textContent;
+      c.appendChild(h.by?byl:el('small','',NB));
+      if(anyDate)c.appendChild(el('small','',h.date?new Date(h.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):NB));
+      var nt=window.CINE_NOTES&&window.CINE_NOTES[h.film];
+      if(!(nt&&nt.avg))c.appendChild(el('small','hnote',NB));
+      if(nt&&nt.avg){
+        var ns=el('small','hnote','★ '+nt.avg.toFixed(2).replace('.',',')+' / 5 ');
+        ns.appendChild(el('i','','('+nt.count+' note'+(nt.count>1?'s':'')+')'));
+        c.appendChild(ns);
+      }
+      var d=el('button','soft hdel','Supprimer');
+      d.onclick=function(){var i=hist.indexOf(h);if(i>-1)hist.splice(i,1);histSave();histSig='';renderHistory()};
+      c.appendChild(d);box.appendChild(c);
+    });
+  }
+  /* numéro du Cinédimanche en cours */
+  var curNum=0;
+  function setNum(n,user){
+    curNum=n;
+    try{localStorage.setItem('cine_num',String(n))}catch(e){}
+    if(user)touch();
+    $('numchip').textContent='● Cinédimanche n°'+n;$('cnum').value=n;
+  }
+  function numInit(){
+    var n=0;
+    try{n=parseInt(localStorage.getItem('cine_num'),10)||0}catch(e){}
+    if(!n){var m=0;hist.forEach(function(h){if(h.num>m)m=h.num});n=m?m+1:66}
+    setNum(n);
+  }
+  histLoad();numInit();
+  function makeEdit(s,idx){
+    var fe=el('div','fedit'),inp=el('input'),ok=el('button','soft fok','OK'),del=el('button','soft fdel','✕');
+    inp.type='text';inp.maxLength=80;inp.autocomplete='off';inp.setAttribute('aria-label','Film du gagnant '+(idx+1));
+    ok.title='Enregistrer ce film';del.title='Supprimer le film';del.setAttribute('aria-label','Supprimer le film');
+    function save(){
+      var t=inp.value.trim();
+      if(!t||poll||!winners[idx])return;
+      films[idx]=t.slice(0,80);inp.value='';result=null;
+      if(allFilms())listening=false;
+      listenUI();render();
+    }
+    ok.onclick=save;
+    inp.onkeydown=function(e){if(e.key==='Enter')save()};
+    del.onclick=function(){
+      if(poll)return;
+      films[idx]='';inp.value='';result=null;
+      listenUI();render();
+    };
+    fe.appendChild(inp);fe.appendChild(ok);fe.appendChild(del);
+    s.appendChild(fe);
+    return fe;
+  }
+  var ORD=['1er','2e','3e'];
+  function render(){
+    $('pcount').textContent=players.length;
+    var q=norm($('search').value.trim()),ul=$('names');ul.innerHTML='';
+    var list=players.filter(function(p){return !q||norm(p).indexOf(q)>-1}).reverse();
+    if(!list.length){var e=document.createElement('li');e.className='empty-msg';e.style.cssText='background:none;border:0;padding:0';e.textContent=players.length?'Aucun résultat.':'Personne pour l’instant. Les pseudos apparaissent ici.';ul.appendChild(e)}
+    list.forEach(function(p){var li=document.createElement('li');li.textContent=p;if(p===newest)li.className='new';ul.appendChild(li)});
+    for(var k=0;k<MAX;k++){
+      var s=$('s'+(k+1)),w=winners[k];
+      s.classList.toggle('empty',!w);
+      s.querySelector('.av span').textContent=w?w.charAt(0).toUpperCase():'?';
+      s.querySelector('b').textContent=w||'En attente';
+      var win=!!result&&result.k===k;
+      s.classList.toggle('win',win);
+      s.querySelector('small').textContent=(win&&!showAll)?'Gagnant du vote':ORD[k]+' tirage';
+      var f=s.querySelector('.film');
+      if(w&&films[k]){f.hidden=false;f.className='film';f.textContent=films[k]}
+      else if(w&&listening){f.hidden=false;f.className='film wait';f.textContent='En attente du film…'}
+      else{f.hidden=true;f.textContent=''}
+      var fe=s.querySelector('.fedit');
+      if(!fe)fe=makeEdit(s,k);
+      fe.hidden=!w;
+      var fin=fe.querySelector('input'),fdel=fe.querySelector('.fdel');
+      fin.placeholder=films[k]?'Corriger le film…':'Écrire le film…';
+      fdel.hidden=!films[k];
+      fin.disabled=fdel.disabled=fe.querySelector('.fok').disabled=!!poll;
+      var pa=s.querySelector('.poster');
+      if(!pa){pa=document.createElement('a');pa.className='poster';pa.hidden=true;pa.target='_blank';pa.rel='noopener';pa.appendChild(document.createElement('img'));s.appendChild(pa)}
+      if(w&&films[k]){
+        loadPoster(films[k]);
+        var src=posters[films[k]];
+        if(src){
+          var im=pa.firstChild;
+          if(im.getAttribute('src')!==src)im.src=src;
+          im.alt='Affiche : '+films[k];
+          pa.href='https://letterboxd.com/search/films/'+encodeURIComponent(films[k])+'/';
+          pa.setAttribute('data-film',films[k]);
+          pa.title=films[k]+' – voir les détails';
+          pa.hidden=false;
+        }else pa.hidden=true;
+      }else pa.hidden=true;
+    }
+    renderPoll();
+    renderHistory();
+    syncSpin();$('review').hidden=winners.length<MAX;
+    draw();
+  }
+
+  function rand(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296*n}
+  var TAU=Math.PI*2;
+  function spin(){
+    if(spinning||!players.length||winners.length>=MAX)return;
+    spinning=true;$('spin').disabled=true;$('timer').disabled=true;
+    var n=players.length,seg=TAU/n,idx=Math.floor(rand(n));
+    var target=-Math.PI/2-(idx*seg+(0.1+rand(0.8))*seg);
+    var cur=((rot%TAU)+TAU)%TAU,tgt=((target%TAU)+TAU)%TAU,delta=tgt-cur;if(delta<0)delta+=TAU;
+    delta+=TAU*(6+Math.floor(rand(3)));
+    var start=rot,dur=window.matchMedia('(prefers-reduced-motion: reduce)').matches?600:6000,t0=performance.now(),name=players[idx];
+    (function frame(now){
+      var p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,4);
+      rot=start+delta*e;draw();
+      if(p<1)requestAnimationFrame(frame);
+      else{
+        rot=rot%TAU;spinning=false;winners.push(name);players.splice(idx,1);render();
+        if(winners.length>=MAX){$('overlay').classList.add('on');$('ovclose').focus()}
+      }
+    })(t0);
+  }
+
+  function status(t,live){$('status').textContent=t;var d=$('dot');d.classList.toggle('live',!!live);d.querySelector('span').textContent=live?'Connecté':'Non connecté'}
+
+  function connect(){
+    var ch=$('channel').value.trim().replace(/^#/,'').toLowerCase();
+    if(!ch){status('Entre le nom de ta chaîne Twitch.');return}
+    try{localStorage.setItem('cine_channel',ch)}catch(e){}
+    if(ws){ws.onclose=null;ws.close()}
+    status('Connexion à #'+ch+'…');
+    ws=new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+    ws.onopen=function(){
+      ws.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
+      ws.send('PASS SCHMOOPIIE');
+      ws.send('NICK justinfan'+Math.floor(10000+Math.random()*80000));
+      ws.send('JOIN #'+ch);
+    };
+    ws.onmessage=function(ev){
+      ev.data.split('\r\n').forEach(function(line){
+        if(!line)return;
+        if(line.indexOf('PING')===0){ws.send('PONG :tmi.twitch.tv');return}
+        if(line.indexOf(' JOIN #')>-1){status('Connecté à #'+ch+'. En écoute du chat.',true);return}
+        var m=line.match(/^(?:@(\S+) )?:([^!]+)![^ ]+ PRIVMSG #\S+ :(.*)$/);
+        if(!m)return;
+        var login=m[2],name=m[2],d=(m[1]||'').match(/display-name=([^;]*)/);
+        if(d&&d[1])name=d[1].replace(/\\s/g,' ');
+        $('lastmsg').textContent='Dernier message reçu : '+name+' — '+m[3].slice(0,50)+(isOpen()?'':' (inscriptions fermées : lance le timer)');
+        if(sentHas(m[3])){
+          /* seuls les messages envoyés par la page elle-même sont ignorés : tous les comptes (bot, streamer) peuvent participer */
+          $('lastmsg').textContent+=' [ignoré : message envoyé par la page]';return;
+        }
+        if(isOpen()&&norm(m[3]).indexOf('je participe')>-1)addPlayer(name);
+        onChat(login,name,m[3]);
+        pollChat(login,m[3]);
+      });
+    };
+    ws.onerror=function(){status('Connexion impossible. Vérifie le nom de la chaîne et ta connexion.')};
+    ws.onclose=function(){status('Déconnecté du chat. Clique sur « Se connecter » pour reprendre.')};
+  }
+
+  $('connect').onclick=connect;
+  $('channel').onkeydown=function(e){if(e.key==='Enter')connect()};
+  $('add').onclick=function(){addPlayer($('manual').value);$('manual').value='';$('manual').focus()};
+  $('manual').onkeydown=function(e){if(e.key==='Enter')$('add').click()};
+  $('spin').onclick=spin;
+  $('search').oninput=render;
+  $('ovclose').onclick=function(){$('overlay').classList.remove('on')};
+  $('reset').onclick=function(){if(spinning)return;pollCancel();result=null;pollNote('');wasOpen=false;setBig(false);if(hist.some(function(h){return h.round===round}))setNum(curNum+1,1);round=Date.now();endAt=0;players=[];winners=[];films=[];listening=false;listenUI();rot=0;updateTimer();render()};
+  $('timer').onclick=toggleTimer;
+  $('botbtn').onclick=function(){$('botdlg').classList.add('on');$('bottoken').focus()};
+  $('botclose').onclick=function(){botSave();$('botdlg').classList.remove('on')};
+  $('botsave').onclick=function(){botSave();botNote('Réglages enregistrés.')};
+  $('bottest').onclick=function(){botSave();botRun()};
+  $('botforget').onclick=function(){$('bottoken').value='';$('botremember').checked=false;bot.ctx=null;botSave();botNote('Token oublié.')};
+  $('botauto').onchange=botSave;botLoad();
+  try{var tk=localStorage.getItem('cine_tmdb');if(tk)$('tmdbkey').value=tk}catch(e){}
+  try{var hk=JSON.parse(localStorage.getItem('cine_hook')||'null');if(hk){$('bothook').value=hk.u||'';$('bothooksecret').value=hk.s||'';$('bothookguild').value=hk.g||''}}catch(e){}
+  $('bothook').onchange=$('bothooksecret').onchange=$('bothookguild').onchange=hookSave;
+  $('tmdbkey').onchange=function(){tmdbSave();posters={};nextInfo={};nextSig='';render();listenUI();botNote('Clé TMDB enregistrée.')};
+  $('botsave').addEventListener('click',tmdbSave);$('botclose').addEventListener('click',tmdbSave);
+  $('listen').onclick=toggleListen;
+  $('pollbtn').onclick=pollStart;
+  function hAdd(){var f=$('hfilm').value;if(!f.trim())return;histAdd(f,$('hby').value,0,0,parseInt($('hnum').value,10)||0);$('hfilm').value='';$('hby').value='';$('hnum').value='';$('hfilm').focus()}
+  $('hadd').onclick=hAdd;
+  $('hexport').onclick=function(){
+    var t=hist.slice().sort(function(a,b){return (a.num||0)-(b.num||0)}).map(function(x){return (x.num||'')+';'+x.film}).join('\n')+'\n';
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'}));a.download='films.txt';
+    document.body.appendChild(a);a.click();a.remove();
+  };
+  /* ---- import / sauvegarde manuelle de l'historique ---- */
+  function impNote(t,bad){var n=$('himpnote');n.textContent=t||'';n.style.color=bad?'#fca5a5':'var(--muted)'}
+  function parseImport(text){
+    text=(text||'').replace(/^\uFEFF/,'').trim();
+    var data=null,list=null,m=text.match(/window\.CINE_DATA\s*=\s*([\s\S]*?);?\s*$/);
+    try{data=JSON.parse(m?m[1]:text)}catch(e){data=null}
+    if(data){
+      if(Array.isArray(data))list=data;
+      else if(Array.isArray(data.hist))list=data.hist;
+      if(list)return {hist:list,num:(data&&data.num)||0,next:(data&&data.next)||''};
+    }
+    /* format films.txt : "num;film" ou "film" par ligne */
+    var out=[];
+    text.split(/\r?\n/).forEach(function(l){
+      l=l.trim();if(!l||l.charAt(0)==='{'||l.charAt(0)==='[')return;
+      var p=l.split(';').map(function(x){return x.trim()}),num=0,film='',by='';
+      if(p.length>1&&/^\d+$/.test(p[0])){num=parseInt(p[0],10);film=p[1];by=p[3]||''}
+      else{film=p[0]}
+      if(film)out.push({film:film,by:by,date:0,round:0,num:num});
+    });
+    return out.length?{hist:out,num:0,next:''}:null;
+  }
+  function cleanHist(a){
+    return a.filter(function(h){return h&&typeof h.film==='string'&&h.film.trim()}).map(function(h){
+      return {film:h.film.trim().slice(0,80),by:String(h.by||'').trim().slice(0,40),date:+h.date||0,round:+h.round||0,num:parseInt(h.num,10)||0};
+    });
+  }
+  function doImport(file){
+    var rd=new FileReader();
+    rd.onerror=function(){impNote('Impossible de lire ce fichier.',true)};
+    rd.onload=function(){
+      var r=parseImport(String(rd.result||''));
+      if(!r){impNote('Fichier non reconnu : utilise historique.js, un .json de sauvegarde ou films.txt.',true);return}
+      var inc=cleanHist(r.hist);
+      if(!inc.length){impNote('Aucun film trouvé dans ce fichier.',true);return}
+      var replace=false;
+      if(hist.length){
+        replace=confirm('Le fichier contient '+inc.length+' film'+(inc.length>1?'s':'')+'.\n\nOK = REMPLACER l’historique actuel ('+hist.length+' films)\nAnnuler = FUSIONNER (ajouter seulement les films manquants)');
+      }
+      var added=0;
+      if(replace||!hist.length){hist=inc;added=inc.length}
+      else{
+        inc.forEach(function(h){
+          var dup=hist.some(function(x){return x.film.toLowerCase()===h.film.toLowerCase()&&(x.num||0)===(h.num||0)});
+          if(!dup){hist.push(h);added++}
+        });
+      }
+      if(r.num>0&&r.num>curNum)setNum(r.num);
+      else{var mx=0;hist.forEach(function(h){if(h.num>mx)mx=h.num});if(mx>=curNum)setNum(mx+1)}
+      if(r.next){try{localStorage.setItem('cine_next',r.next)}catch(e){}}
+      histSave();histSig='';nextSig='';bannerSig='';renderHistory();if(typeof renderNext==='function')renderNext();
+      impNote((replace?'Historique remplacé : ':'Fusion terminée : ')+added+' film'+(added>1?'s':'')+' '+(replace?'chargé'+(added>1?'s':''):'ajouté'+(added>1?'s':''))+' ('+hist.length+' au total).');
+    };
+    rd.readAsText(file,'utf-8');
+  }
+  $('himport').onclick=function(){$('hfile').value='';$('hfile').click()};
+  $('hfile').onchange=function(){var f=this.files&&this.files[0];if(f)doImport(f)};
+  $('hbackup').onclick=function(){
+    var d=JSON.stringify({saved:Date.now(),hist:hist,num:curNum,next:(function(){try{return localStorage.getItem('cine_next')||''}catch(e){return ''}})()},null,1);
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'application/json;charset=utf-8'}));a.download='historique-cinedimanche.json';
+    document.body.appendChild(a);a.click();a.remove();impNote('Sauvegarde téléchargée.');
+  };
+  $('cnum').onchange=function(){var n=parseInt($('cnum').value,10);if(n>0)setNum(n,1);else $('cnum').value=curNum};
+  $('hfilm').onkeydown=$('hby').onkeydown=function(e){if(e.key==='Enter')hAdd()};
+  $('big').onclick=function(){setBig(!document.body.classList.contains('big'),true)};
+  document.addEventListener('fullscreenchange',function(){if(fsUs&&!document.fullscreenElement){fsUs=false;setBig(false)}});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&document.body.classList.contains('big')&&!document.fullscreenElement&&!$('overlay').classList.contains('on')&&!$('botdlg').classList.contains('on')&&!$('filmdlg').classList.contains('on'))setBig(false);
+  });
+  $('noteclose').onclick=closeNotes;
+  $('notedlg').onclick=function(e){if(e.target===this)closeNotes()};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeNotes()});
+  $('ovtoggle').onclick=function(){showAll=!showAll;render()};
+  $('review').onclick=function(){$('overlay').classList.add('on');$('ovclose').focus()};
+  document.querySelectorAll('.stab').forEach(function(t){t.onclick=function(){
+    document.querySelectorAll('.stab').forEach(function(x){var on=x===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on)});
+    document.querySelectorAll('.spane').forEach(function(s){s.classList.toggle('on',s.id===t.dataset.p)});
+  }});
+  /* onglet Letterboxd : cartes des viewers (pseudo Twitch, pseudo Letterboxd, lien) */
+  var LB=[["akasinj", "Akashii_", "https://letterboxd.com/Akashii_"], ["anoniymous_", "Anoniymous", "https://letterboxd.com/Anoniymous"], ["bahnkai__", "baptistemkh", "https://letterboxd.com/baptistemkh"], ["bleatch___", "Bleatch", "https://letterboxd.com/Bleatch"], ["cathelonie", "cathelonie", "https://letterboxd.com/cathelonie"], ["citronello75", "hocinemrh", "https://letterboxd.com/hocinemrh"], ["dryzzz_", "Dryzou", "https://letterboxd.com/Dryzou"], ["el_matte0", "El_matte0", "https://letterboxd.com/El_matte0"], ["elm_abdel", "Abdel0", "https://letterboxd.com/Abdel0"], ["elm_jeageer", "JeageerSama", "https://letterboxd.com/JeageerSama"], ["enzo_ml_", "Enzo_ml_", "https://letterboxd.com/Enzo_ml_"], ["ficellecmoi", "LaFicelleCmoi", "https://letterboxd.com/LaFicelleCmoi"], ["grimpeakstv", "Grimpeaks", "https://letterboxd.com/Grimpeaks"], ["kurisui1", "Kurisuu1", "https://letterboxd.com/Kurisuu1"], ["lblns7", "lblns07", "https://letterboxd.com/lblns07"], ["lucasledoge", "LucasLeDoge", "https://letterboxd.com/LucasLeDoge"], ["mielox121", "ent_dns", "https://letterboxd.com/ent_dns"], ["neiko_jojo", "Neik0", "https://letterboxd.com/Neik0"], ["occxlt", "OccxLT", "https://letterboxd.com/OccxLT"], ["ozan_937", "Ozan937", "https://letterboxd.com/Ozan937"], ["slash609", "SLSH", "https://letterboxd.com/SLSH"], ["steeven93k", "Steeven93", "https://letterboxd.com/Steeven93"]];
+  function lbShow(login,url){
+    var pic=lbPics[login];if(!pic||!url)return Promise.resolve(false);
+    return new Promise(function(ok){
+      var img=new Image();img.alt='';
+      img.onload=function(){pic.textContent='';pic.appendChild(img);ok(true)};
+      img.onerror=function(){ok(false)};
+      img.src=url;
+    });
+  }
+  async function lbLoadPics(){
+    var logins=LB.map(function(r){return r[0].toLowerCase()}),got={};
+    /* 1) API Twitch (si le token du bot est renseigné dans Réglages) */
+    try{
+      var tk=($('bottoken').value||'').trim().replace(/^oauth:/i,'');
+      if(tk){
+        var v=await fetch('https://id.twitch.tv/oauth2/validate',{headers:{Authorization:'OAuth '+tk}});
+        if(v.ok){
+          var cid=(await v.json()).client_id;
+          var q=logins.map(function(l){return 'login='+encodeURIComponent(l)}).join('&');
+          var u=await fetch('https://api.twitch.tv/helix/users?'+q,{headers:{Authorization:'Bearer '+tk,'Client-Id':cid}});
+          if(u.ok)((await u.json()).data||[]).forEach(function(d){got[d.login.toLowerCase()]=d.profile_image_url});
+        }
+      }
+    }catch(e){}
+    await Promise.all(logins.map(async function(l){
+      if(got[l]&&await lbShow(l,got[l]))return;
+      /* 2) decapi.me : renvoie l’adresse de la vraie photo de profil Twitch */
+      try{
+        var r=await fetch('https://decapi.me/twitch/avatar/'+encodeURIComponent(l));
+        var t=(await r.text()).trim();
+        if(/^https:\/\/static-cdn\.jtvnw\.net\//.test(t)&&await lbShow(l,t))return;
+      }catch(e){}
+      /* 3) dernier recours : unavatar */
+      await lbShow(l,'https://unavatar.io/twitch/'+encodeURIComponent(l)+'?fallback=false');
+    }));
+  }
+  var lbPics={};
+  function renderLB(){
+    var box=document.getElementById('lblist');
+    if(box.childNodes.length)return;
+    document.getElementById('lbcount').textContent=LB.length;
+    LB.forEach(function(r){
+      var a=document.createElement('a');
+      a.className='lbcard';a.href=r[2];a.target='_blank';a.rel='noopener noreferrer';
+      a.setAttribute('aria-label',r[0]+' – Letterboxd : '+r[1]);
+      var pic=document.createElement('div');pic.className='lbpic';
+      pic.textContent=r[0].charAt(0).toUpperCase();
+      lbPics[r[0].toLowerCase()]=pic;
+      var b=document.createElement('b');b.textContent=r[0];
+      var s=document.createElement('small');s.textContent='@'+r[1];
+      a.appendChild(pic);a.appendChild(b);a.appendChild(s);
+      box.appendChild(a);
+    });
+    lbLoadPics();
+  }
+    function normTxt(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+  function histMatch(h,q){
+    var nq=normTxt(q).trim();
+    if(!nq)return true;
+    var m=nq.match(/^(?:cinedimanche|cine|no|n°|n|#)?\s*°?\s*(\d+)$/);
+    if(m&&h.num&&String(h.num)===m[1])return true;
+    return normTxt(h.film).indexOf(nq)>-1||normTxt(h.by).indexOf(nq)>-1;
+  }
+  function renderBanner(items){
+    var bx=$('histbanner');if(!bx)return;
+    if(!items.length){bx.hidden=true;bx.innerHTML='';bannerSig='';return}
+    items.forEach(function(h){loadPoster(h.film)});
+    var sig=items.map(function(h){return h.film+'|'+h.num+'|'+(posters[h.film]||'')}).join('§');
+    if(sig===bannerSig)return;
+    bannerSig=sig;bx.hidden=false;bx.innerHTML='';
+    var reps=Math.max(1,Math.ceil(14/items.length)),tr=el('div','hbtrack');
+    tr.style.setProperty('--dur',Math.max(30,items.length*reps*4)+'s');
+    for(var c=0;c<2;c++){
+      var g=el('div','hbgroup'+(c?' dup':''));
+      if(c)g.setAttribute('aria-hidden','true');
+      for(var r=0;r<reps;r++)items.forEach(function(h){
+        var a=el('a','hbitem');a.setAttribute('data-film',h.film);a.href='https://letterboxd.com/search/films/'+encodeURIComponent(h.film)+'/';a.target='_blank';a.rel='noopener';
+        a.title=h.film+(h.num?' (n°'+h.num+')':'');if(c)a.tabIndex=-1;
+        var pa=el('span','poster'),src=posters[h.film];
+        if(src){var im=el('img');im.src=src;im.alt=c?'':'Affiche : '+h.film;im.loading='lazy';pa.appendChild(im)}
+        else pa.appendChild(el('span','noposter','🎬'));
+        a.appendChild(pa);a.appendChild(el('small','',h.num?'n°'+h.num:h.film));
+        g.appendChild(a);
+      });
+      tr.appendChild(g);
+    }
+    bx.appendChild(tr);
+  }
+  $('hq').oninput=function(){histQ=this.value;histSig='';renderHistory()};
+  /* ---- sauvegarde automatique dans historique.js (Chrome / Edge) ---- */
+  var fileH=null,fileOK=false,fileTimer=0,fileWriting=false,fileAgain=false;
+  function savedTs(){try{return parseInt(localStorage.getItem('cine_saved'),10)||0}catch(e){return 0}}
+  function touch(){try{localStorage.setItem('cine_saved',String(Date.now()))}catch(e){}scheduleFile()}
+  function scheduleFile(){if(!fileH||!fileOK)return;clearTimeout(fileTimer);fileTimer=setTimeout(writeFile,400)}
+  function fileData(){
+    var nx='';try{nx=localStorage.getItem('cine_next')||''}catch(e){}
+    return {saved:savedTs()||Date.now(),hist:hist,num:curNum,next:nx};
+  }
+  function fileStatus(msg,err){var e=$('filest');if(!e)return;e.textContent=msg;e.style.color=err?'#ef4444':''}
+  async function writeFile(){
+    if(!fileH||!fileOK)return;
+    if(fileWriting){fileAgain=true;return}
+    fileWriting=true;
+    try{
+      var w=await fileH.createWritable();
+      await w.write('/* Sauvegarde automatique du cinédimanche : ne pas modifier à la main */\nwindow.CINE_DATA='+JSON.stringify(fileData(),null,1)+';\n');
+      await w.close();
+      fileStatus('Fichier « '+fileH.name+' » lié : écriture automatique active (dernier enregistrement à '+new Date().toLocaleTimeString('fr-FR')+').');
+    }catch(e){
+      fileOK=false;
+      fileStatus('Écriture impossible ('+((e&&e.message)||e)+'). Clique sur « Reconnecter le fichier » ou choisis-le à nouveau.',true);
+      var lb=$('filelink');if(lb)lb.textContent='Reconnecter le fichier';
+    }
+    fileWriting=false;
+    if(fileAgain){fileAgain=false;writeFile()}
+  }
+  function idb(){return new Promise(function(res,rej){var r=indexedDB.open('cinedimanche',1);r.onupgradeneeded=function(){r.result.createObjectStore('h')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+  function idbGet(k){return idb().then(function(d){return new Promise(function(res,rej){var q=d.transaction('h').objectStore('h').get(k);q.onsuccess=function(){res(q.result)};q.onerror=function(){rej(q.error)}})})}
+  function idbSet(k,v){return idb().then(function(d){return new Promise(function(res,rej){var t=d.transaction('h','readwrite');t.objectStore('h').put(v,k);t.oncomplete=function(){res()};t.onerror=function(){rej(t.error)}})})}
+  async function readFileData(fh){
+    try{
+      var t=await (await fh.getFile()).text();
+      var m=t.match(/window\.CINE_DATA\s*=\s*([\s\S]*?);\s*$/);
+      if(!m)return null;
+      var D=JSON.parse(m[1]);
+      return Array.isArray(D.hist)?D:null;
+    }catch(e){return null}
+  }
+  function adoptData(D){
+    hist=D.hist.filter(function(h){return h&&typeof h.film==='string'});histPersist();
+    try{
+      if(D.next)localStorage.setItem('cine_next',D.next);else localStorage.removeItem('cine_next');
+      localStorage.setItem('cine_saved',String(D.saved||Date.now()));
+    }catch(e){}
+    if(D.num>0)setNum(D.num);
+    histSig='';nextSig='';bannerSig='';renderHistory();renderNext();
+  }
+  async function linkFile(){
+    try{
+      var fh=await window.showSaveFilePicker({suggestedName:'historique.js',types:[{description:'Fichier JavaScript',accept:{'text/javascript':['.js']}}]});
+      var D=await readFileData(fh);
+      if(D&&(D.saved||0)>savedTs()&&confirm('Ce fichier contient un historique plus récent ('+D.hist.length+' films) que celui de ce navigateur. Le charger à la place ?'))adoptData(D);
+      fileH=fh;fileOK=true;
+      try{await idbSet('hist',fh)}catch(e){}
+      if(!savedTs()){try{localStorage.setItem('cine_saved',String(Date.now()))}catch(e){}}
+      $('filelink').textContent='Changer de fichier';
+      await writeFile();
+    }catch(e){if(!e||e.name!=='AbortError')fileStatus('Impossible de lier le fichier : '+((e&&e.message)||e),true)}
+  }
+  async function fileInit(){
+    var lb=$('filelink');if(!lb)return;
+    if(!window.showSaveFilePicker){
+      lb.hidden=true;
+      fileStatus('Indisponible sur ce navigateur (utilise Chrome ou Edge). L’historique reste enregistré dans ce navigateur.');
+      return;
+    }
+    lb.onclick=function(){
+      if(fileH&&!fileOK){
+        fileH.requestPermission({mode:'readwrite'}).then(function(r){
+          if(r==='granted'){fileOK=true;lb.textContent='Changer de fichier';writeFile()}else linkFile();
+        }).catch(function(){linkFile()});
+      }else linkFile();
+    };
+    fileStatus('Aucun fichier lié : l’historique n’est enregistré que dans ce navigateur. Place « historique.js » dans le même dossier que cette page.');
+    var fh=null;try{fh=await idbGet('hist')}catch(e){}
+    if(!fh)return;
+    fileH=fh;
+    var perm='prompt';try{perm=await fh.queryPermission({mode:'readwrite'})}catch(e){}
+    if(perm==='granted'){fileOK=true;lb.textContent='Changer de fichier';writeFile();return}
+    lb.textContent='Reconnecter le fichier';
+    fileStatus('Fichier « '+fh.name+' » lié. Clique n’importe où sur la page pour autoriser l’écriture.');
+    document.addEventListener('pointerdown',function reco(){
+      document.removeEventListener('pointerdown',reco,true);
+      if(fileOK)return;
+      fh.requestPermission({mode:'readwrite'}).then(function(r){
+        if(r==='granted'){fileOK=true;lb.textContent='Changer de fichier';writeFile()}
+        else fileStatus('Autorisation refusée : l’historique n’est enregistré que dans ce navigateur.',true);
+      }).catch(function(){});
+    },true);
+  }
+  fileInit();
+  /* ---- fenêtre film (clic sur une cover) ---- */
+  var filmDlgTitle='';
+  function notesFor(title){
+    var N=window.CINE_NOTES;if(!N)return null;
+    if(N[title])return N[title];
+    var k=normTxt(title);
+    for(var key in N){if(Object.prototype.hasOwnProperty.call(N,key)&&normTxt(key)===k)return N[key]}
+    return null;
+  }
+  function renderFilmDlg(){
+    var t=filmDlgTitle,box=$('filmbody');if(!t||!box)return;
+    var info=nextInfo[t],hasKey=!!tmdbKey(),nt=notesFor(t);
+    box.innerHTML='';
+    var top=el('div','ftop'),cv=el('div','fcover');
+    if(info&&info.poster){var im=el('img');im.src=info.poster;im.alt='Affiche : '+(info.title||t);cv.appendChild(im)}
+    else if(posters[t]){var im2=el('img');im2.src=posters[t];im2.alt='Affiche : '+t;cv.appendChild(im2)}
+    else cv.appendChild(el('span','noposter','🎬'));
+    top.appendChild(cv);
+    var main=el('div','fmain'),h=el('h3','',info&&info.title?info.title:t);h.id='filmtitle';main.appendChild(h);
+    var meta=[];
+    if(info&&info.year)meta.push(info.year);
+    if(info&&info.runtime)meta.push(Math.floor(info.runtime/60)+' h '+('0'+(info.runtime%60)).slice(-2));
+    if(info&&info.genres&&info.genres.length)meta.push(info.genres.slice(0,3).join(', '));
+    if(meta.length)main.appendChild(el('p','fmeta',meta.join(' · ')));
+    var syn;
+    if(!hasKey)syn=el('p','fsyn muted','Ajoute une clé TMDB (bouton Réglages) pour afficher le synopsis.');
+    else if(!info)syn=el('p','fsyn muted','Chargement…');
+    else if(info.none)syn=el('p','fsyn muted',info.err?'Impossible de joindre TMDB pour le moment.':'Synopsis introuvable (film absent de TMDB).');
+    else syn=el('p','fsyn'+(info.overview?'':' muted'),info.overview||'Pas de synopsis disponible.');
+    main.appendChild(syn);
+    var lk=el('a','flink','Voir sur Letterboxd ↗');
+    lk.href=(info&&info.id)?'https://letterboxd.com/tmdb/'+info.id+'/':'https://letterboxd.com/search/films/'+encodeURIComponent(t)+'/';
+    lk.target='_blank';lk.rel='noopener';main.appendChild(lk);
+    top.appendChild(main);box.appendChild(top);
+    /* notes + reviews des viewers */
+    var rt=(nt&&nt.ratings)||{},revs=((nt&&nt.reviews)||[]).slice(0,3);
+    var bot=el('div','fbottom'+(revs.length?' two':'')),sn=el('div','fsec');
+    sn.appendChild(el('h4','','Notes des viewers'));
+    if(nt&&nt.avg){
+      sn.appendChild(el('p','favg','★ '+nt.avg.toFixed(2).replace('.',',')+' / 5 · '+nt.count+' note'+(nt.count>1?'s':'')));
+      Object.keys(rt).sort(function(a,b){return rt[b]-rt[a]||a.localeCompare(b)}).forEach(function(u){
+        var rw=el('div','hrow');rw.appendChild(el('span','',u));rw.appendChild(el('b','','★ '+rt[u].toFixed(1).replace('.',',')));sn.appendChild(rw);
+      });
+    }else sn.appendChild(el('p','fnone','Pas encore de notes des viewers pour ce film.'));
+    bot.appendChild(sn);
+    if(revs.length){
+      var sr=el('div','fsec');sr.appendChild(el('h4','','Reviews choisies'));
+      revs.forEach(function(r){
+        var d=el('div','rev'),hd=el('header');
+        hd.appendChild(el('b','',r.user));
+        if(rt[r.user])hd.appendChild(el('span','','★ '+rt[r.user].toFixed(1).replace('.',',')));
+        d.appendChild(hd);d.appendChild(el('p','',r.text));sr.appendChild(d);
+      });
+      bot.appendChild(sr);
+    }
+    box.appendChild(bot);
+  }
+  function openFilm(title){
+    if(!title)return;
+    filmDlgTitle=title;loadNext(title);renderFilmDlg();
+    $('filmdlg').classList.add('on');$('filmclose').focus();
+    var fb=document.querySelector('#filmdlg .filmbox');if(fb)fb.scrollTop=0;
+  }
+  function closeFilm(){filmDlgTitle='';$('filmdlg').classList.remove('on')}
+  $('filmclose').onclick=closeFilm;
+  $('filmdlg').onclick=function(e){if(e.target===this)closeFilm()};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('filmdlg').classList.contains('on')){e.stopImmediatePropagation();closeFilm()}},true);
+  /* un clic sur une cover ouvre la fenêtre du film (clic milieu / Ctrl+clic : lien Letterboxd comme avant) */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[data-film]');
+    if(!a||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey)return;
+    e.preventDefault();openFilm(a.getAttribute('data-film'));
+  });
+  /* ---- onglet « Prochain film » ---- */
+  var nextInfo={},nextPend={},nextSig='',lbRate={};
+  function nextCurrent(){
+    var m='';try{m=(localStorage.getItem('cine_next')||'').trim()}catch(e){}
+    if(m)return {t:m,manual:true,by:'',num:0};
+    if(!hist.length)return {t:'',manual:false,by:'',num:0};
+    var s=hist.slice().sort(function(a,b){return (b.num||0)-(a.num||0)||(b.date||0)-(a.date||0)})[0];
+    return {t:s.film,manual:false,by:s.by||'',num:s.num||0};
+  }
+  function tmdbGet(path,params,lang){
+    var k=tmdbKey(),h={},u='https://api.themoviedb.org/3'+path+'?language='+(lang||'fr-FR')+(params||'');
+    if(k.length>40)h.Authorization='Bearer '+k;else u+='&api_key='+encodeURIComponent(k);
+    return fetch(u,{headers:h}).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()});
+  }
+  function loadNext(title){
+    if(!title||!tmdbKey()||(title in nextInfo)||nextPend[title])return;
+    nextPend[title]=1;
+    var p=parseFilm(title);
+    function search(withYear){
+      return tmdbGet('/search/movie','&include_adult=false&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'')).then(function(j){return (j.results||[])[0]||null});
+    }
+    search(true).then(function(r){return r||(p.y?search(false):null)}).then(function(r){
+      if(!r){nextInfo[title]={none:true};return}
+      return tmdbGet('/movie/'+r.id).then(function(d){
+        var info={id:d.id,title:d.title||r.title||title,year:(d.release_date||'').slice(0,4),runtime:d.runtime||0,
+          genres:(d.genres||[]).map(function(g){return g.name}),overview:d.overview||'',
+          poster:d.poster_path?'https://image.tmdb.org/t/p/w500'+d.poster_path:''};
+        if(info.overview)return info;
+        return tmdbGet('/movie/'+r.id,'','en-US').then(function(e){info.overview=e.overview||'';return info}).catch(function(){return info});
+      }).then(function(info){nextInfo[title]=info});
+    }).catch(function(){nextInfo[title]={none:true,err:true}}).then(function(){
+      delete nextPend[title];renderNext();if(filmDlgTitle===title)renderFilmDlg();
+    });
+  }
+  /* note moyenne Letterboxd : pas d’API publique, on lit la page du film via un proxy CORS (au mieux) */
+  function loadLbRating(id){
+    if(id in lbRate)return;
+    lbRate[id]={state:'loading'};
+    var target='https://letterboxd.com/tmdb/'+id+'/';
+    var proxies=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?url='];
+    function tryP(i){
+      if(i>=proxies.length)return Promise.reject(new Error('lb'));
+      return fetch(proxies[i]+encodeURIComponent(target)).then(function(r){if(!r.ok)throw new Error('http');return r.text()}).then(function(t){
+        var m=t.match(/name=["']twitter:data2["'][^>]*content=["']([\d.]+) out of 5/i)||
+              t.match(/content=["']([\d.]+) out of 5["'][^>]*name=["']twitter:data2["']/i)||
+              t.match(/"ratingValue"\s*:\s*"?([\d.]+)/);
+        var v=m?parseFloat(m[1]):NaN;
+        if(!(v>0&&v<=5))throw new Error('parse');
+        return v;
+      }).catch(function(){return tryP(i+1)});
+    }
+    tryP(0).then(function(v){lbRate[id]={state:'ok',v:v}}).catch(function(){lbRate[id]={state:'fail'}}).then(function(){renderNext()});
+  }
+  function fmtRate(v){return v.toFixed(2).replace('.',',')}
+  function renderNext(){
+    var box=$('nextbox');if(!box)return;
+    var cur=nextCurrent(),info=cur.t?nextInfo[cur.t]:null,hasKey=!!tmdbKey();
+    if(cur.t&&hasKey)loadNext(cur.t);
+    var id=info&&info.id,lb=null;
+    if(id)loadLbRating(id);
+    lb=id?lbRate[id]:null;
+    var sig=[cur.t,cur.manual,cur.by,cur.num,hasKey,JSON.stringify(info||0),JSON.stringify(lb||0)].join('|');
+    if(sig===nextSig)return;
+    nextSig=sig;
+    box.innerHTML='';
+    var lbUrl=id?'https://letterboxd.com/tmdb/'+id+'/':'https://letterboxd.com/search/films/'+encodeURIComponent(cur.t)+'/';
+    if(!cur.t){
+      box.appendChild(el('p','empty-msg','Aucun film pour l’instant. Le film gagnant du vote apparaîtra ici automatiquement, ou saisis-le ci-dessous.'));
+    }else{
+      var w=el('div','nextwrap');
+      var a=el('a','poster');a.setAttribute('data-film',cur.t);a.href=lbUrl;a.target='_blank';a.rel='noopener';a.title=(info&&info.title||cur.t)+' – voir les détails';
+      if(info&&info.poster){var im=el('img');im.src=info.poster;im.alt='Affiche : '+(info.title||cur.t);a.appendChild(im)}
+      else a.appendChild(el('span','noposter','🎬'));
+      w.appendChild(a);
+      var r=el('div','nextinfo');
+      r.appendChild(el('div','nnum',cur.num?'Cinédimanche n°'+cur.num:'À l’affiche dimanche'));
+      r.appendChild(el('h3','',info&&info.title?info.title:cur.t));
+      var meta=[];
+      if(info&&info.year)meta.push(info.year);
+      if(info&&info.runtime)meta.push(Math.floor(info.runtime/60)+' h '+('0'+(info.runtime%60)).slice(-2));
+      if(info&&info.genres&&info.genres.length)meta.push(info.genres.slice(0,3).join(', '));
+      if(cur.by)meta.push('Demandé par '+cur.by);
+      if(meta.length)r.appendChild(el('p','nmeta',meta.join(' · ')));
+      var syn;
+      if(!hasKey)syn=el('p','nsyn muted','Ajoute une clé TMDB (bouton Réglages) pour afficher la cover et le synopsis.');
+      else if(!info)syn=el('p','nsyn muted','Chargement…');
+      else if(info.none)syn=el('p','nsyn muted',info.err?'Impossible de joindre TMDB pour le moment.':'Film introuvable sur TMDB. Essaie le titre exact, avec l’année : « Titre (2019) ».');
+      else syn=el('p','nsyn'+(info.overview?'':' muted'),info.overview||'Pas de synopsis disponible.');
+      r.appendChild(syn);
+      /* note Letterboxd : affichée seulement si elle a pu être récupérée */
+      if(lb&&lb.state==='ok'){
+        var rate=el('a','nrate');rate.href=lbUrl;rate.target='_blank';rate.rel='noopener';
+        rate.title='Ouvrir la page Letterboxd du film';
+        rate.appendChild(el('small','','Letterboxd'));
+        rate.appendChild(el('b','','★ '+fmtRate(lb.v)+' / 5'));
+        r.appendChild(rate);
+      }
+      w.appendChild(r);box.appendChild(w);
+    }
+    /* changer le film à la main */
+    var ne=el('div','nextedit'),ni=el('input');
+    ni.type='text';ni.maxLength=80;ni.autocomplete='off';ni.placeholder='Choisir un autre film (ex : Titre (2019))';ni.setAttribute('aria-label','Autre film');
+    var nb=el('button','soft','Définir comme prochain film');
+    function setNext(){var t=ni.value.trim();if(!t)return;try{localStorage.setItem('cine_next',t.slice(0,80))}catch(e){}touch();nextSig='';renderNext()}
+    nb.onclick=setNext;ni.onkeydown=function(e){if(e.key==='Enter')setNext()};
+    ne.appendChild(ni);ne.appendChild(nb);
+    if(cur.manual){
+      var rb=el('button','soft','Revenir au dernier film voté');
+      rb.onclick=function(){try{localStorage.removeItem('cine_next')}catch(e){}touch();nextSig='';renderNext()};
+      ne.appendChild(rb);
+    }
+    box.appendChild(ne);
+    if(!cur.manual&&cur.t)box.appendChild(el('p','nextnote','Par défaut : le dernier film voté dans l’historique.'));
+  }
+  /* onglets : « La roue » / « Historique » (un seul écran à la fois) */
+  var navLinks=document.querySelectorAll('nav a');
+  function setTab(t){
+    t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain')?t:'roue';
+    document.body.classList.toggle('tab-hist',t==='historique');
+    document.body.classList.toggle('tab-next',t==='prochain');
+    document.body.classList.toggle('tab-lb',t==='letterboxd');
+    document.body.classList.toggle('tab-rubis',t==='rubis');
+    navLinks.forEach(function(a){
+      var on=a.getAttribute('href')==='#'+t;
+      a.classList.toggle('on',on);
+      if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+    });
+    if(t==='historique')renderHistory();
+    if(t==='prochain')renderNext();
+    if(t==='letterboxd')renderLB();
+  }
+  navLinks.forEach(function(a){a.onclick=function(e){
+    e.preventDefault();
+    var t=a.getAttribute('href').slice(1);
+    setTab(t);window.scrollTo(0,0);
+    try{history.replaceState(null,'','#'+t)}catch(err){}
+  }});
+  window.addEventListener('hashchange',function(){setTab(location.hash.slice(1))});
+  setTab(location.hash.slice(1));
+  try{var s=localStorage.getItem('cine_channel');if(s)$('channel').value=s}catch(e){}
+  var q=new URLSearchParams(location.search).get('channel');
+  if(q){$('channel').value=q;connect()}
+  render();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
