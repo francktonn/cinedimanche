@@ -311,6 +311,10 @@ body:not(.admin) nav a[href="#roue"],body:not(.admin) #dot,body:not(.admin) .had
 #admdlg input{width:100%;flex:none;margin:2px 0 10px}
 #admdlg .brow{margin-top:6px}
 #syncst{min-height:18px;margin:0 0 6px!important}
+/* ===== onglet Accueil ===== */
+body.tab-home .hero,body.tab-home #roue,body.tab-home #resultsec,body.tab-home footer{display:none}
+body:not(.tab-home) #accueil{display:none}
+#accueil{padding-top:44px;padding-bottom:50px;min-height:50vh}
 /* ===== onglet Prochain film ===== */
 body.tab-next .hero,body.tab-next #roue,body.tab-next #resultsec,body.tab-next footer{display:none}
 body:not(.tab-next) #prochain{display:none}
@@ -562,11 +566,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <body>
 <nav>
   <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><mask id="cdclap"><rect width="24" height="24" fill="#fff"/><g stroke="#000" stroke-width="1.5" fill="none"><g transform="rotate(-14 3 8.4)"><path d="M8.2 4.4 6.4 8.4M12.2 4.4 10.4 8.4M16.2 4.4 14.4 8.4M20.2 4.4 18.4 8.4"/></g><path d="M7.4 10.2 5.6 13.4M11.4 10.2 9.6 13.4M15.4 10.2 13.6 13.4M19.4 10.2 17.6 13.4"/></g></mask></defs><g mask="url(#cdclap)"><path d="M3 10.2h18V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><g transform="rotate(-14 3 8.4)"><rect x="3" y="4.4" width="18" height="4" rx="1"/></g></g></svg><span>cinedimanche</span></div>
-  <a href="#roue" class="on" aria-current="page">La roue</a>
+  <a href="#accueil" class="on" aria-current="page">Accueil</a>
   <a href="#prochain">Prochain film</a>
   <a href="#historique">Historique</a>
   <a href="#letterboxd">Letterboxd</a>
   <a href="#rubis">RUBIS</a>
+  <a href="#roue">La roue</a>
   <div class="spacer"></div>
   <div id="dot"><i></i><span>Non connecté</span></div>
   <button id="adminbtn" class="soft" type="button" title="Accès admin" aria-label="Accès admin">🔒</button>
@@ -637,6 +642,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <span id="hres" class="hres" aria-live="polite"></span>
   </div>
   <div class="hgrid" id="histlist"></div>
+</section>
+
+<section id="accueil">
 </section>
 
 <section id="rubis">
@@ -2192,7 +2200,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     }
   }
   /* fondu + flou sur la page, et petit éclat sur la barre */
-  var TABS=['roue','prochain','historique','letterboxd','rubis'];
+  var TABS=['accueil','prochain','historique','letterboxd','rubis','roue'];
   function cascade(id){
     var g=$(id);if(!g)return;
     casc.t=Date.now();
@@ -2206,9 +2214,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   window.addEventListener('resize',function(){movePill(false)});
   function setTab(t){
-    t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain')?t:'roue';
-    if(t==='roue'&&!isAdmin)t='prochain';
+    t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain'||t==='roue')?t:'accueil';
+    if(t==='roue'&&!isAdmin)t='accueil';
     var tabChanged=curTab!==null&&curTab!==t,tabDir=(tabChanged&&TABS.indexOf(t)<TABS.indexOf(curTab))?-1:1;curTab=t;
+    document.body.classList.toggle('tab-home',t==='accueil');
     document.body.classList.toggle('tab-hist',t==='historique');
     document.body.classList.toggle('tab-next',t==='prochain');
     document.body.classList.toggle('tab-lb',t==='letterboxd');
@@ -2240,7 +2249,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var b=$('adminbtn');b.textContent=isAdmin?'🔓 Admin':'🔒';
     b.title=isAdmin?'Connecté en admin':'Accès admin';
     $('admout').hidden=!isAdmin;
-    if(!isAdmin&&curTab==='roue'){setTab('prochain');try{history.replaceState(null,'','#prochain')}catch(e){}}
+    if(!isAdmin&&curTab==='roue'){setTab('accueil');try{history.replaceState(null,'','#accueil')}catch(e){}}
     movePill(false);
   }
   function openAdm(){
