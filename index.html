@@ -540,6 +540,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <input id="cnum" type="number" min="1" max="9999">
     <label class="f" for="tmdbkey">Clé API TMDB (affiches des films, gratuite sur themoviedb.org)</label>
     <input id="tmdbkey" type="password" placeholder="Clé API v3 ou jeton de lecture v4" autocomplete="off">
+    <label class="f" for="syncsecret">Mot de passe de synchro (CINE_ADMIN_SECRET sur Vercel, pour modifier l’historique)</label>
+    <input id="syncsecret" type="password" placeholder="Laisse vide sur les appareils en lecture seule" autocomplete="off">
+    <p id="syncst"></p>
     <label class="f">Sauvegarde automatique de l’historique</label>
     <p id="filest"></p>
     <div class="brow"><button id="filelink" class="soft" type="button">Choisir le fichier historique.js</button></div>
@@ -1456,7 +1459,37 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   /* ---- sauvegarde automatique dans historique.js (Chrome / Edge) ---- */
   var fileH=null,fileOK=false,fileTimer=0,fileWriting=false,fileAgain=false;
   function savedTs(){try{return parseInt(localStorage.getItem('cine_saved'),10)||0}catch(e){return 0}}
-  function touch(){try{localStorage.setItem('cine_saved',String(Date.now()))}catch(e){}scheduleFile()}
+  function touch(){try{localStorage.setItem('cine_saved',String(Date.now()))}catch(e){}scheduleFile();schedulePush()}
+  /* ---- synchro entre appareils (API Vercel + Upstash Redis) ---- */
+  var SYNC_URL='/api/historique',pushTimer=0;
+  function syncSecret(){return ($('syncsecret').value||'').trim()}
+  function syncSt(t,bad){var e=$('syncst');if(!e)return;e.textContent=t||'';e.style.color=bad?'#fca5a5':''}
+  function syncSaveSecret(){try{localStorage.setItem('cine_sync',syncSecret())}catch(e){}}
+  function schedulePush(){if(!syncSecret())return;clearTimeout(pushTimer);pushTimer=setTimeout(pushRemote,600)}
+  async function pushRemote(){
+    var s=syncSecret();if(!s)return;
+    try{
+      var r=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'application/json','x-secret':s},body:JSON.stringify(fileData())});
+      var j=await r.json().catch(function(){return{}});
+      if(r.ok&&j.ok)syncSt('Synchronisé avec le serveur à '+new Date().toLocaleTimeString('fr-FR')+'.');
+      else syncSt('Synchro refusée : '+(j.error||('code '+r.status)),true);
+    }catch(e){syncSt('Serveur injoignable (synchro non envoyée).',true)}
+  }
+  async function pullRemote(){
+    try{
+      var r=await fetch(SYNC_URL,{cache:'no-store'});
+      if(!r.ok)return;
+      var D=await r.json();
+      if(D&&D.empty){if(syncSecret()&&hist.length)pushRemote();return}
+      if(!D||!Array.isArray(D.hist))return;
+      var loc=savedTs(),rem=D.saved||0;
+      if(syncSecret()){
+        if(rem>loc){adoptData(D);syncSt('Historique mis à jour depuis le serveur.')}
+        else if(loc>rem)pushRemote();
+        else syncSt('Synchronisé avec le serveur.');
+      }else if(rem!==loc){adoptData(D)}
+    }catch(e){}
+  }
   function scheduleFile(){if(!fileH||!fileOK)return;clearTimeout(fileTimer);fileTimer=setTimeout(writeFile,400)}
   function fileData(){
     var nx='';try{nx=localStorage.getItem('cine_next')||''}catch(e){}
@@ -1545,6 +1578,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     },true);
   }
   fileInit();
+  try{var sk=localStorage.getItem('cine_sync');if(sk)$('syncsecret').value=sk}catch(e){}
+  $('syncsecret').onchange=function(){syncSaveSecret();if(syncSecret()){syncSt('Mot de passe enregistré.');pullRemote()}else syncSt('')};
+  $('botsave').addEventListener('click',syncSaveSecret);$('botclose').addEventListener('click',syncSaveSecret);
+  pullRemote();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)pullRemote()});
   /* ---- fenêtre film (clic sur une cover) ---- */
   var filmDlgTitle='';
   function notesFor(title){
