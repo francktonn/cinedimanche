@@ -340,18 +340,19 @@ body:not(.tab-next) #prochain{display:none}
 .hbhead span{font-weight:600;letter-spacing:.04em;text-transform:none;font-variant-numeric:tabular-nums}
 .hbanner[hidden]{display:none}
 .hbtrack{display:flex;width:max-content;will-change:transform;animation:hmarq var(--dur,60s) linear infinite}
-.hbanner:hover .hbtrack,.hbanner:focus-within .hbtrack{animation-play-state:paused}
+/* pause seulement quand la souris est sur un film (ou focus clavier sur un film), pas sur le reste de la bannière */
+.hbtrack:has(.hbitem:hover),.hbtrack:has(.hbitem:focus-visible){animation-play-state:paused}
 .hbgroup{display:flex;flex:none}
 @keyframes hmarq{to{transform:translateX(-50%)}}
-.hbitem{flex:none;display:block;width:96px;margin-right:16px;text-decoration:none;color:var(--text);text-align:center;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
-.hbitem .poster{width:96px;margin:0;border-radius:10px}
+.hbitem{flex:none;display:block;width:112px;padding-right:16px;text-decoration:none;color:var(--text);text-align:center;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.hbitem .poster{width:100%;margin:0;border-radius:10px}
 .hbitem strong{display:block;margin-top:9px;font-size:12px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hbitem small{display:block;margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .hbitem small i{font-style:normal;color:var(--gold)}
 /* au survol : on met le film visé en avant, les autres s'estompent */
 @media(hover:hover){
-  .hbtrack:hover .hbitem{opacity:.5}
-  .hbtrack:hover .hbitem:hover,.hbtrack .hbitem:focus-visible{opacity:1;transform:translateY(-5px)}
+  .hbtrack:has(.hbitem:hover) .hbitem,.hbtrack:has(.hbitem:focus-visible) .hbitem{opacity:.5}
+  .hbtrack:has(.hbitem:hover) .hbitem:hover,.hbtrack:has(.hbitem:focus-visible) .hbitem:focus-visible{opacity:1}
 }
 .hsearch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 22px}
 .hsearch input{flex:1 1 280px;max-width:520px}
@@ -517,7 +518,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .hadd button{flex:1 1 45%}
   .hsearch input{flex:1 1 100%;max-width:none}
   .hgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .hbitem,.hbitem .poster{width:80px}.hbitem{margin-right:12px}.hbhead{padding:0 14px 10px}.hbanner::before,.hbanner::after{width:36px}
+  .hbitem{width:92px;padding-right:12px}.hbhead{padding:0 14px 10px}.hbanner::before,.hbanner::after{width:36px}
   /* letterboxd */
   .lbgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .lbcard{padding:16px 8px 14px}
