@@ -316,7 +316,7 @@ body.tab-home .hero,body.tab-home #roue,body.tab-home #resultsec,body.tab-home f
 body:not(.tab-home) #accueil{display:none}
 /* ===== onglet Accueil : présentation animée au défilement ===== */
 #accueil{max-width:none;padding:0;margin:0;position:relative}
-.ah{position:relative;height:calc(100vh*11);height:calc(100svh*11)}
+.ah{position:relative;height:calc(100vh*12);height:calc(100svh*12)}
 .astage{--navh:80px;position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .aglow{position:absolute;inset:-20%;pointer-events:none;
   background:radial-gradient(circle at var(--gx,30%) var(--gy,40%),rgba(176,108,255,.28),transparent 38%),radial-gradient(circle at calc(100% - var(--gx,30%)) calc(100% - var(--gy,40%)),rgba(244,114,182,.20),transparent 40%)}
@@ -2369,7 +2369,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
     var raf=0,lastP=-1;
     /* durée relative de chaque scène (le vote reste plus longtemps à l'écran) */
-    var WT=scenes.map(function(sc){return sc.getAttribute('data-s')==='vote'?2.2:1}),WS=[],WSUM=0;
+    var WT=scenes.map(function(sc){var d=sc.getAttribute('data-s');return (d==='vote'||d==='wheel')?2.2:1}),WS=[],WSUM=0;
     WT.forEach(function(w){WS.push(WSUM);WSUM+=w});
     function cl(x){return x<0?0:x>1?1:x}
     function ss(a,b,x){x=cl((x-a)/(b-a));return x*x*(3-2*x)}
@@ -2409,10 +2409,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         $('apc').firstChild.textContent=shown;
       },
       wheel:function(sc,t){
-        var q=cl((t-.06)/.7),e=1-Math.pow(1-q,3);
+        var q=cl((t-.04)/.4),e=1-Math.pow(1-q,3);
         $('awheel').style.transform='rotate('+(e*1260)+'deg)';
         winEls.forEach(function(w,i){
-          var v=ss(.68+i*.1,.78+i*.1,t);w.style.opacity=v;w.style.transform='translateY('+((1-v)*24)+'px) scale('+(.85+.15*v)+')';
+          var v=ss(.48+i*.09,.57+i*.09,t);w.style.opacity=v;w.style.transform='translateY('+((1-v)*24)+'px) scale('+(.85+.15*v)+')';
         });
       },
       points:function(sc,t){
