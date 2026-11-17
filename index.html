@@ -530,6 +530,38 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .fedit input{min-height:40px}
   .slot .poster,.slot.r1 .poster{width:min(130px,60%)}
 }
+/* ===== onglet « Prochain film » : tient dans l'écran, sans défilement ===== */
+body.tab-next{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+body.tab-next nav{flex:none}
+body.tab-next #prochain{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding-top:clamp(14px,3.5vh,44px);padding-bottom:clamp(12px,3vh,30px)}
+body.tab-next #prochain h2{flex:none;margin-bottom:4px}
+body.tab-next #prochain .sub{flex:none;margin-bottom:clamp(8px,2vh,22px)}
+body.tab-next #nextbox{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+body.tab-next .nextwrap{flex:1 1 auto;min-height:0;flex-wrap:nowrap;align-items:center;gap:clamp(20px,3vw,40px)}
+body.tab-next .nfloat{flex:none;height:100%;max-height:560px;width:auto;aspect-ratio:2/3}
+body.tab-next .nextwrap .poster{width:100%}
+body.tab-next .nextinfo{flex:1 1 320px;min-width:0;max-height:100%;overflow:hidden}
+body.tab-next .nextinfo h3{font-size:clamp(24px,min(4.5vw,6vh),40px)}
+body.tab-next .nextinfo .nmeta{margin-bottom:clamp(8px,2vh,18px)}
+body.tab-next .nextinfo .nsyn{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:8;line-clamp:8;overflow:hidden;margin-bottom:clamp(10px,2.5vh,22px)}
+body.tab-next .nextedit{flex:none;margin-top:clamp(8px,2vh,28px);padding-top:clamp(8px,1.8vh,20px)}
+body.tab-next .nextnote{flex:none;margin-top:6px}
+@media(max-height:640px){
+  body.tab-next .nextinfo .nsyn{-webkit-line-clamp:5;line-clamp:5}
+}
+@media(max-width:760px){
+  body.tab-next #prochain{padding-top:12px}
+  body.tab-next #prochain .sub{display:none}
+  body.tab-next .nextwrap{flex-direction:column;justify-content:flex-start;gap:14px}
+  body.tab-next .nfloat{height:min(32vh,300px);max-height:none;flex:none;width:auto;aspect-ratio:2/3}
+  body.tab-next .nextinfo{flex:1 1 0;width:100%;min-height:0}
+  body.tab-next .nextinfo .nsyn{-webkit-line-clamp:4;line-clamp:4}
+  body.tab-next .nextinfo h3{font-size:clamp(22px,7vw,30px)}
+}
+@media(max-width:760px) and (max-height:700px){
+  body.tab-next .nfloat{height:28vh}
+  body.tab-next .nextinfo .nsyn{-webkit-line-clamp:3;line-clamp:3}
+}
 </style>
 </head>
 <body>
