@@ -330,16 +330,29 @@ body:not(.tab-next) #prochain{display:none}
 .nextedit input{flex:1 1 200px}
 .nextnote{color:var(--muted);font-size:13px;margin:10px 0 0}
 /* ===== historique : bannière défilante + recherche ===== */
-.hbanner{position:relative;overflow:hidden;margin:0 0 20px;padding:16px 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;
--webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.hbanner{position:relative;overflow:hidden;margin:0 0 22px;padding:14px 0 16px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 36px rgba(0,0,0,.28)}
+/* fondu sur les bords (sur la zone des affiches seulement, la bordure reste nette) */
+.hbanner::before,.hbanner::after{content:"";position:absolute;top:0;bottom:0;width:72px;z-index:2;pointer-events:none}
+.hbanner::before{left:0;background:linear-gradient(90deg,var(--surface),rgba(18,17,26,0))}
+.hbanner::after{right:0;background:linear-gradient(270deg,var(--surface),rgba(18,17,26,0))}
+.hbhead{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:0 20px 12px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hbhead b{color:var(--text);font-weight:800}
+.hbhead span{font-weight:600;letter-spacing:.04em;text-transform:none;font-variant-numeric:tabular-nums}
 .hbanner[hidden]{display:none}
-.hbtrack{display:flex;width:max-content;animation:hmarq var(--dur,60s) linear infinite}
+.hbtrack{display:flex;width:max-content;will-change:transform;animation:hmarq var(--dur,60s) linear infinite}
 .hbanner:hover .hbtrack,.hbanner:focus-within .hbtrack{animation-play-state:paused}
 .hbgroup{display:flex;flex:none}
 @keyframes hmarq{to{transform:translateX(-50%)}}
-.hbitem{flex:none;width:84px;margin-right:14px;text-decoration:none;color:var(--text);text-align:center}
-.hbitem .poster{width:84px;margin:0;border-radius:8px}
-.hbitem small{display:block;margin-top:6px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbitem{flex:none;display:block;width:96px;margin-right:16px;text-decoration:none;color:var(--text);text-align:center;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.hbitem .poster{width:96px;margin:0;border-radius:10px}
+.hbitem strong{display:block;margin-top:9px;font-size:12px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbitem small{display:block;margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.hbitem small i{font-style:normal;color:var(--gold)}
+/* au survol : on met le film visé en avant, les autres s'estompent */
+@media(hover:hover){
+  .hbtrack:hover .hbitem{opacity:.5}
+  .hbtrack:hover .hbitem:hover,.hbtrack .hbitem:focus-visible{opacity:1;transform:translateY(-5px)}
+}
 .hsearch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 22px}
 .hsearch input{flex:1 1 280px;max-width:520px}
 .hres{color:var(--muted);font-size:13px}
@@ -504,7 +517,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .hadd button{flex:1 1 45%}
   .hsearch input{flex:1 1 100%;max-width:none}
   .hgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .hbitem,.hbitem .poster{width:70px}
+  .hbitem,.hbitem .poster{width:80px}.hbitem{margin-right:12px}.hbhead{padding:0 14px 10px}.hbanner::before,.hbanner::after{width:36px}
   /* letterboxd */
   .lbgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .lbcard{padding:16px 8px 14px}
@@ -1694,11 +1707,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var bx=$('histbanner');if(!bx)return;
     if(!items.length){bx.hidden=true;bx.innerHTML='';bannerSig='';return}
     items.forEach(function(h){loadPoster(h.film)});
-    var sig=items.map(function(h){return h.film+'|'+h.num+'|'+(posters[h.film]||'')}).join('§');
+    var sig=items.map(function(h){var n0=window.CINE_NOTES&&window.CINE_NOTES[h.film];return h.film+'|'+h.num+'|'+(posters[h.film]||'')+'|'+((n0&&n0.avg)||'')}).join('§');
     if(sig===bannerSig)return;
     bannerSig=sig;bx.hidden=false;bx.innerHTML='';
+    var hd=el('div','hbhead'),hl=el('b','','Déjà vus'),hr=el('span','',items.length+' film'+(items.length>1?'s':''));
+    hd.appendChild(hl);hd.appendChild(hr);bx.appendChild(hd);
     var reps=Math.max(1,Math.ceil(14/items.length)),tr=el('div','hbtrack');
-    tr.style.setProperty('--dur',Math.max(30,items.length*reps*4)+'s');
+    tr.style.setProperty('--dur',Math.max(36,items.length*reps*4.5)+'s');
     for(var c=0;c<2;c++){
       var g=el('div','hbgroup'+(c?' dup':''));
       if(c)g.setAttribute('aria-hidden','true');
@@ -1708,7 +1723,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         var pa=el('span','poster'),src=posters[h.film];
         if(src){var im=el('img');im.src=src;im.alt=c?'':'Affiche : '+h.film;im.loading='lazy';pa.appendChild(im)}
         else pa.appendChild(el('span','noposter','🎬'));
-        a.appendChild(pa);a.appendChild(el('small','',h.num?'n°'+h.num:h.film));
+        a.appendChild(pa);a.appendChild(el('strong','',h.film));
+        var sm=el('small',''),nt0=window.CINE_NOTES&&window.CINE_NOTES[h.film];
+        if(h.num)sm.appendChild(document.createTextNode('n°'+h.num));
+        if(nt0&&nt0.avg){if(h.num)sm.appendChild(document.createTextNode(' · '));sm.appendChild(el('i','','★'));sm.appendChild(document.createTextNode(' '+nt0.avg.toFixed(1).replace('.',',')))}
+        if(!sm.firstChild)sm.textContent='\u00a0';
+        a.appendChild(sm);
         g.appendChild(a);
       });
       tr.appendChild(g);
