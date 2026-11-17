@@ -201,6 +201,71 @@ body.big #spin{font-size:22px;padding:18px 40px}
 @media(prefers-reduced-motion:no-preference){#overlay.on .modal{animation:pop .5s cubic-bezier(.2,1.5,.4,1)}}
 @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:560px){.av{width:72px;height:72px;font-size:28px}.slot.r1 .av{width:96px;height:96px;font-size:38px}.slot b{font-size:15px}}
+/* ===== inclinaison 3D des affiches + reflet qui suit le curseur ===== */
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .poster.tilting:hover,.poster.tilting:focus-visible{
+    transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px) scale(1.04);
+    transition:transform .09s linear,box-shadow .25s,border-color .25s}
+  .poster.tilting:hover::after{
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.4),rgba(255,255,255,.08) 35%,transparent 60%);
+    transform:none;opacity:1;transition:opacity .2s}
+  .poster.tilting:hover img{transform:scale(1.06)}
+  .fcover.tilting{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.03);transition:transform .09s linear}
+  .fcover.tilting::after{opacity:1}
+}
+.fcover{position:relative;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.fcover::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .2s;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.4),rgba(255,255,255,.08) 35%,transparent 60%)}
+/* ===== fiche film : l'affiche s'envole depuis sa carte ===== */
+.flycover{position:fixed;z-index:25;pointer-events:none;border-radius:12px;overflow:hidden;background:var(--surface2);border:1px solid var(--violet);
+  box-shadow:0 0 18px rgba(176,108,255,.5),0 24px 60px rgba(0,0,0,.65);will-change:left,top,width,height,transform}
+.flycover img{width:100%;height:100%;object-fit:cover;display:block}
+@media (prefers-reduced-motion:no-preference){
+  #filmdlg.on{animation:fdbg .3s ease-out}
+  #filmdlg.on .filmbox{animation:fdbox .42s cubic-bezier(.2,.9,.25,1)}
+}
+@keyframes fdbg{from{background:rgba(7,6,12,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+@keyframes fdbox{from{opacity:0;transform:translateY(18px) scale(.96)}}
+/* ===== étoiles de notes qui se remplissent une à une ===== */
+.stars{display:inline-flex;gap:2px;vertical-align:middle;margin-right:4px}
+.star{position:relative;display:block;width:14px;height:14px;background:#34324a;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5l2.95 6.1 6.7.9-4.9 4.65 1.2 6.6L12 17.5l-5.95 3.25 1.2-6.6L2.35 9.5l6.7-.9z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5l2.95 6.1 6.7.9-4.9 4.65 1.2 6.6L12 17.5l-5.95 3.25 1.2-6.6L2.35 9.5l6.7-.9z'/%3E%3C/svg%3E") center/contain no-repeat}
+.stars.big .star{width:20px;height:20px}
+.sfill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--f,0)*100%);background:linear-gradient(135deg,#ffe27a,var(--gold))}
+@media (prefers-reduced-motion:no-preference){
+  .sfill{animation:starfill .45s cubic-bezier(.2,.9,.3,1) backwards;animation-delay:var(--d,0s)}
+  .star.on{animation:starpop .45s ease-out backwards;animation-delay:var(--d,0s)}
+}
+@keyframes starfill{from{width:0}}
+@keyframes starpop{0%{transform:scale(.7)}60%{transform:scale(1.28)}100%{transform:none}}
+.fsec .favg{display:flex;align-items:center;gap:4px}
+.hrow b{display:inline-flex;align-items:center}
+/* ===== pendant le vote : la fenêtre tient dans l'écran, sans défilement (ordinateur) ===== */
+@media(min-width:561px){
+  #overlay.voting{overflow:hidden;padding:1.5vh 20px}
+  #overlay.voting .modal{display:flex;flex-direction:column;align-items:center;max-height:100%;margin:auto}
+  #overlay.voting .modal h2{font-size:clamp(22px,4.6vh,44px);margin:0 0 1.6vh}
+  #overlay.voting .podium{width:100%;padding:0 0 1.2vh;gap:12px}
+  #overlay.voting .av{width:clamp(52px,10vh,96px);height:clamp(52px,10vh,96px);font-size:clamp(20px,4vh,38px);border-width:2px}
+  #overlay.voting .slot.r1 .av{width:clamp(66px,14vh,130px);height:clamp(66px,14vh,130px);font-size:clamp(26px,5.6vh,50px)}
+  #overlay.voting .rk{width:24px;height:24px;font-size:12px;bottom:-10px}
+  #overlay.voting .slot b{margin-top:16px;font-size:clamp(14px,2.4vh,20px)}
+  #overlay.voting .slot small{margin-top:2px}
+  #overlay.voting .film{margin-top:6px;padding:5px 10px;font-size:clamp(12px,2.1vh,16px)}
+  #overlay.voting .fedit,#overlay.voting #fnote{display:none}
+  #overlay.voting .slot .poster{margin-top:8px;width:min(12vh,100%)}
+  #overlay.voting .slot.r1 .poster{width:min(15vh,100%)}
+  #overlay.voting .mbtns button{min-height:0;padding:9px 16px;font-size:14px}
+  #overlay.voting #pollstat{margin-top:1vh;font-size:13px}
+  #overlay.voting .votebars{margin-top:1.2vh;gap:6px;width:100%}
+  #overlay.voting .vrow{gap:3px 12px}
+  #overlay.voting .vtrack{height:8px}
+  #overlay.voting .vname,#overlay.voting .vnum{font-size:13px}
+}
+@media(min-width:561px) and (max-height:620px){
+  #overlay.voting .slot .poster{display:none}
+}
 /* ===== mode admin : tout ce qui modifie le site est caché aux visiteurs ===== */
 body:not(.admin) nav a[href="#roue"],body:not(.admin) #dot,body:not(.admin) .hadd,body:not(.admin) #himpnote,body:not(.admin) .hcard .hdel,body:not(.admin) .nextedit,body:not(.admin) .nextnote{display:none!important}
 #adminbtn{padding:8px 12px;font-size:13px;border-radius:12px;white-space:nowrap}
@@ -949,6 +1014,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     $('resultsec').hidden=!result;
     var fin=!!result&&!showAll;
     $('overlay').classList.toggle('final',fin);
+    $('overlay').classList.toggle('voting',!!poll);
     document.querySelector('#overlay .modal h2').textContent=fin?'Le film choisi':'Les 3 vainqueurs';
     var tg=$('ovtoggle');tg.hidden=!result;
     tg.textContent=showAll?'Voir seulement le gagnant':'Voir les 3 vainqueurs';
@@ -1596,7 +1662,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   pullRemote();
   document.addEventListener('visibilitychange',function(){if(!document.hidden)pullRemote()});
   /* ---- fenêtre film (clic sur une cover) ---- */
-  var filmDlgTitle='';
+  var filmDlgTitle='',fly=null;
   function notesFor(title){
     var N=window.CINE_NOTES;if(!N)return null;
     if(N[title])return N[title];
@@ -1604,10 +1670,57 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     for(var key in N){if(Object.prototype.hasOwnProperty.call(N,key)&&normTxt(key)===k)return N[key]}
     return null;
   }
+  /* étoiles : v entre 0 et 5, chaque étoile se remplit après un délai (d0 + i × step, en secondes) */
+  function stars(v,d0,step,size){
+    var w=el('span','stars'+(size?' '+size:''));
+    w.setAttribute('role','img');w.setAttribute('aria-label',v.toFixed(2).replace('.',',')+' sur 5');
+    for(var i=0;i<5;i++){
+      var f=Math.max(0,Math.min(1,v-i)),s=el('span','star'+(f>0?' on':'')),fl=el('i','sfill');
+      s.style.setProperty('--f',f);
+      s.style.setProperty('--d',(d0+i*step).toFixed(2)+'s');
+      s.appendChild(fl);w.appendChild(s);
+    }
+    return w;
+  }
+  /* l'affiche de la carte s'envole vers la fenêtre : une copie volante suit la vraie affiche, qui est cachée pendant le trajet */
+  function endFly(){
+    if(!fly)return;
+    cancelAnimationFrame(fly.raf);
+    if(fly.g.parentNode)fly.g.parentNode.removeChild(fly.g);
+    if(fly.pe)fly.pe.style.opacity=fly.op;
+    fly=null;
+    var c=document.querySelector('#filmbody .fcover');if(c)c.style.visibility='';
+  }
+  function startFly(src){
+    endFly();
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var pe=src.classList.contains('poster')?src:(src.querySelector('.poster')||src);
+    var im=pe.querySelector('img'),cover=document.querySelector('#filmbody .fcover');
+    if(!im||!(im.currentSrc||im.src)||!cover)return;
+    var f=pe.getBoundingClientRect();
+    if(!f.width||!f.height)return;
+    var g=el('div','flycover'),gi=el('img');
+    gi.src=im.currentSrc||im.src;gi.alt='';g.appendChild(gi);document.body.appendChild(g);
+    fly={g:g,pe:pe,op:pe.style.opacity,raf:0};
+    pe.style.opacity='0';cover.style.visibility='hidden';
+    var t0=performance.now(),D=560;
+    (function frame(now){
+      if(!fly||fly.g!==g)return;
+      var p=Math.min(1,Math.max(0,(now-t0)/D)),e=1-Math.pow(1-p,4);
+      var c=document.querySelector('#filmbody .fcover'),T=c?c.getBoundingClientRect():f;
+      var arc=Math.sin(Math.PI*e);
+      g.style.left=(f.left+(T.left-f.left)*e)+'px';
+      g.style.top=(f.top+(T.top-f.top)*e-arc*28)+'px';
+      g.style.width=(f.width+(T.width-f.width)*e)+'px';
+      g.style.height=(f.height+(T.height-f.height)*e)+'px';
+      g.style.transform='rotate('+(-4*arc)+'deg)';
+      if(p<1)fly.raf=requestAnimationFrame(frame);else endFly();
+    })(t0);
+  }
   function renderFilmDlg(){
     var t=filmDlgTitle,box=$('filmbody');if(!t||!box)return;
     var info=nextInfo[t],hasKey=!!tmdbKey(),nt=notesFor(t);
-    box.innerHTML='';
+    var oldTop=box.querySelector('.ftop'),oldBot=box.querySelector('.fbottom');
     var top=el('div','ftop'),cv=el('div','fcover');
     if(info&&info.poster){var im=el('img');im.src=info.poster;im.alt='Affiche : '+(info.title||t);cv.appendChild(im)}
     else if(posters[t]){var im2=el('img');im2.src=posters[t];im2.alt='Affiche : '+t;cv.appendChild(im2)}
@@ -1628,15 +1741,26 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var lk=el('a','flink','Voir sur Letterboxd ↗');
     lk.href=(info&&info.id)?'https://letterboxd.com/tmdb/'+info.id+'/':'https://letterboxd.com/search/films/'+encodeURIComponent(t)+'/';
     lk.target='_blank';lk.rel='noopener';main.appendChild(lk);
-    top.appendChild(main);box.appendChild(top);
+    top.appendChild(main);
+    if(fly)cv.style.visibility='hidden';
+    /* seul le haut est reconstruit quand le synopsis arrive : les notes ne se rejouent pas */
+    if(oldTop)box.replaceChild(top,oldTop);else box.insertBefore(top,box.firstChild);
+    if(oldBot)return;
     /* notes + reviews des viewers */
     var rt=(nt&&nt.ratings)||{},revs=((nt&&nt.reviews)||[]).slice(0,3);
     var bot=el('div','fbottom'+(revs.length?' two':'')),sn=el('div','fsec');
     sn.appendChild(el('h4','','Notes des viewers'));
     if(nt&&nt.avg){
-      sn.appendChild(el('p','favg','★ '+nt.avg.toFixed(2).replace('.',',')+' / 5 · '+nt.count+' note'+(nt.count>1?'s':'')));
+      var fa=el('p','favg'),rowN=0;
+      fa.appendChild(stars(nt.avg,0.45,0.12,'big'));
+      fa.appendChild(document.createTextNode(nt.avg.toFixed(2).replace('.',',')+' / 5 · '+nt.count+' note'+(nt.count>1?'s':'')));
+      sn.appendChild(fa);
       Object.keys(rt).sort(function(a,b){return rt[b]-rt[a]||a.localeCompare(b)}).forEach(function(u){
-        var rw=el('div','hrow');rw.appendChild(el('span','',u));rw.appendChild(el('b','','★ '+rt[u].toFixed(1).replace('.',',')));sn.appendChild(rw);
+        var rw=el('div','hrow'),bb=el('b');
+        rw.appendChild(el('span','',u));
+        bb.appendChild(stars(rt[u],0.8+(rowN++)*0.06,0.08));
+        bb.appendChild(document.createTextNode(rt[u].toFixed(1).replace('.',',')));
+        rw.appendChild(bb);sn.appendChild(rw);
       });
     }else sn.appendChild(el('p','fnone','Pas encore de notes des viewers pour ce film.'));
     bot.appendChild(sn);
@@ -1652,13 +1776,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     }
     box.appendChild(bot);
   }
-  function openFilm(title){
+  function openFilm(title,src){
     if(!title)return;
-    filmDlgTitle=title;loadNext(title);renderFilmDlg();
+    endFly();filmDlgTitle=title;loadNext(title);$('filmbody').innerHTML='';renderFilmDlg();
     $('filmdlg').classList.add('on');$('filmclose').focus();
     var fb=document.querySelector('#filmdlg .filmbox');if(fb)fb.scrollTop=0;
+    if(src)startFly(src);
   }
-  function closeFilm(){filmDlgTitle='';$('filmdlg').classList.remove('on')}
+  function closeFilm(){endFly();filmDlgTitle='';$('filmdlg').classList.remove('on')}
   $('filmclose').onclick=closeFilm;
   $('filmdlg').onclick=function(e){if(e.target===this)closeFilm()};
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('filmdlg').classList.contains('on')){e.stopImmediatePropagation();closeFilm()}},true);
@@ -1666,8 +1791,32 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[data-film]');
     if(!a||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey)return;
-    e.preventDefault();openFilm(a.getAttribute('data-film'));
+    e.preventDefault();openFilm(a.getAttribute('data-film'),a);
   });
+  /* ---- inclinaison 3D des affiches (souris uniquement) ---- */
+  (function(){
+    if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches)return;
+    var cur=null;
+    function reduce(){return window.matchMedia('(prefers-reduced-motion: reduce)').matches}
+    function reset(t){
+      t.classList.remove('tilting');
+      ['--rx','--ry','--mx','--my'].forEach(function(k){t.style.removeProperty(k)});
+    }
+    document.addEventListener('pointermove',function(e){
+      if(e.pointerType!=='mouse'||reduce())return;
+      var t=e.target.closest?e.target.closest('.poster,.fcover'):null;
+      if(cur&&cur!==t){reset(cur);cur=null}
+      if(!t)return;
+      var r=t.getBoundingClientRect();if(!r.width||!r.height)return;
+      var x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height));
+      t.classList.add('tilting');cur=t;
+      t.style.setProperty('--ry',((x-.5)*16).toFixed(2)+'deg');
+      t.style.setProperty('--rx',((.5-y)*16).toFixed(2)+'deg');
+      t.style.setProperty('--mx',(x*100).toFixed(1)+'%');
+      t.style.setProperty('--my',(y*100).toFixed(1)+'%');
+    });
+    document.documentElement.addEventListener('pointerleave',function(){if(cur){reset(cur);cur=null}});
+  })();
   /* ---- onglet « Prochain film » ---- */
   var nextInfo={},nextPend={},nextSig='',lbRate={};
   function nextCurrent(){
