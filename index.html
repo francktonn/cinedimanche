@@ -201,6 +201,15 @@ body.big #spin{font-size:22px;padding:18px 40px}
 @media(prefers-reduced-motion:no-preference){#overlay.on .modal{animation:pop .5s cubic-bezier(.2,1.5,.4,1)}}
 @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:560px){.av{width:72px;height:72px;font-size:28px}.slot.r1 .av{width:96px;height:96px;font-size:38px}.slot b{font-size:15px}}
+/* ===== mode admin : tout ce qui modifie le site est caché aux visiteurs ===== */
+body:not(.admin) nav a[href="#roue"],body:not(.admin) #dot,body:not(.admin) .hadd,body:not(.admin) #himpnote,body:not(.admin) .hcard .hdel,body:not(.admin) .nextedit,body:not(.admin) .nextnote{display:none!important}
+#adminbtn{padding:8px 12px;font-size:13px;border-radius:12px;white-space:nowrap}
+#admdlg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,6,12,.7);backdrop-filter:blur(4px);z-index:12}
+#admdlg.on{display:flex}
+#admdlg .notebox{width:min(380px,100%)}
+#admdlg input{width:100%;flex:none;margin:2px 0 10px}
+#admdlg .brow{margin-top:6px}
+#syncst{min-height:18px;margin:0 0 6px!important}
 /* ===== onglet Prochain film ===== */
 body.tab-next .hero,body.tab-next #roue,body.tab-next #resultsec,body.tab-next footer{display:none}
 body:not(.tab-next) #prochain{display:none}
@@ -268,7 +277,7 @@ body:not(.tab-next) #prochain{display:none}
 #overlay::-webkit-scrollbar-corner,.botscroll::-webkit-scrollbar-corner,#notelist::-webkit-scrollbar-corner,#noterevs::-webkit-scrollbar-corner,.notecols::-webkit-scrollbar-corner,.filmbox::-webkit-scrollbar-corner,#names::-webkit-scrollbar-corner{background:transparent}
 @supports not selector(::-webkit-scrollbar){#overlay,.botscroll,#notelist,#noterevs,.notecols,.filmbox,#names{scrollbar-width:thin;scrollbar-color:#b06cff transparent}}
 /* ===== pop-up ouvert : la page principale ne défile plus ===== */
-html:has(#overlay.on,#botdlg.on,#notedlg.on,#filmdlg.on){overflow:hidden}
+html:has(#overlay.on,#botdlg.on,#notedlg.on,#filmdlg.on,#admdlg.on){overflow:hidden}
 .filmbox,#notelist,#noterevs,.notecols,#names{overscroll-behavior:contain}
 /* ===== effets hover : néon violet ===== */
 :root{--neon:#b06cff;--neon-soft:rgba(176,108,255,.55)}
@@ -436,6 +445,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <a href="#rubis">RUBIS</a>
   <div class="spacer"></div>
   <div id="dot"><i></i><span>Non connecté</span></div>
+  <button id="adminbtn" class="soft" type="button" title="Accès admin" aria-label="Accès admin">🔒</button>
 </nav>
 
 <header class="hero">
@@ -540,9 +550,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <input id="cnum" type="number" min="1" max="9999">
     <label class="f" for="tmdbkey">Clé API TMDB (affiches des films, gratuite sur themoviedb.org)</label>
     <input id="tmdbkey" type="password" placeholder="Clé API v3 ou jeton de lecture v4" autocomplete="off">
-    <label class="f" for="syncsecret">Mot de passe de synchro (CINE_ADMIN_SECRET sur Vercel, pour modifier l’historique)</label>
-    <input id="syncsecret" type="password" placeholder="Laisse vide sur les appareils en lecture seule" autocomplete="off">
-    <p id="syncst"></p>
     <label class="f">Sauvegarde automatique de l’historique</label>
     <p id="filest"></p>
     <div class="brow"><button id="filelink" class="soft" type="button">Choisir le fichier historique.js</button></div>
@@ -560,6 +567,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <div class="brow"><button id="bottest">Envoyer maintenant</button><button id="botsave" class="soft">Enregistrer</button><button id="botforget" class="soft">Oublier le token</button><button id="botclose" class="soft">Fermer</button></div>
   <div id="botnote" role="status"></div>
   </div>
+</div></div>
+<div id="admdlg" role="dialog" aria-modal="true" aria-labelledby="admtitle"><div class="notebox">
+  <h3 id="admtitle">Accès admin</h3>
+  <p id="admintro">Entre le mot de passe pour gérer la roue, l’historique et le prochain film.</p>
+  <input id="syncsecret" type="password" placeholder="Mot de passe admin" aria-label="Mot de passe admin" autocomplete="current-password">
+  <p id="syncst" role="status"></p>
+  <div class="brow"><button id="admok" type="button">Valider</button><button id="admout" class="soft" type="button" hidden>Se déconnecter</button><button id="admclose" class="soft" type="button">Fermer</button></div>
 </div></div>
 <div id="notedlg" role="dialog" aria-modal="true" aria-labelledby="notetitle"><div class="notebox">
   <h3 id="notetitle"></h3><p id="noteavg"></p>
@@ -1579,8 +1593,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   fileInit();
   try{var sk=localStorage.getItem('cine_sync');if(sk)$('syncsecret').value=sk}catch(e){}
-  $('syncsecret').onchange=function(){syncSaveSecret();if(syncSecret()){syncSt('Mot de passe enregistré.');pullRemote()}else syncSt('')};
-  $('botsave').addEventListener('click',syncSaveSecret);$('botclose').addEventListener('click',syncSaveSecret);
   pullRemote();
   document.addEventListener('visibilitychange',function(){if(!document.hidden)pullRemote()});
   /* ---- fenêtre film (clic sur une cover) ---- */
@@ -1771,6 +1783,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     if(!cur.manual&&cur.t)box.appendChild(el('p','nextnote','Par défaut : le dernier film voté dans l’historique.'));
   }
   /* onglets : « La roue » / « Historique » (un seul écran à la fois) */
+  var isAdmin=false;try{isAdmin=!!localStorage.getItem('cine_sync')}catch(e){}
+  document.body.classList.toggle('admin',isAdmin);
   var navLinks=document.querySelectorAll('nav a');
   var navEl=document.querySelector('nav'),pill=document.createElement('span'),curTab=null,animT=0,flashT=0;
   pill.className='navpill';pill.setAttribute('aria-hidden','true');navEl.insertBefore(pill,navEl.firstChild);
@@ -1800,6 +1814,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   window.addEventListener('resize',function(){movePill(false)});
   function setTab(t){
     t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain')?t:'roue';
+    if(t==='roue'&&!isAdmin)t='prochain';
     var tabChanged=curTab!==null&&curTab!==t,tabDir=(tabChanged&&TABS.indexOf(t)<TABS.indexOf(curTab))?-1:1;curTab=t;
     document.body.classList.toggle('tab-hist',t==='historique');
     document.body.classList.toggle('tab-next',t==='prochain');
@@ -1826,6 +1841,49 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }});
   window.addEventListener('hashchange',function(){setTab(location.hash.slice(1))});
   setTab(location.hash.slice(1));
+  /* ---- accès admin : le mot de passe est vérifié par le serveur ---- */
+  function applyAdmin(){
+    document.body.classList.toggle('admin',isAdmin);
+    var b=$('adminbtn');b.textContent=isAdmin?'🔓 Admin':'🔒';
+    b.title=isAdmin?'Connecté en admin':'Accès admin';
+    $('admout').hidden=!isAdmin;
+    if(!isAdmin&&curTab==='roue'){setTab('prochain');try{history.replaceState(null,'','#prochain')}catch(e){}}
+    movePill(false);
+  }
+  function openAdm(){
+    syncSt('');
+    $('admintro').textContent=isAdmin?'Tu es connecté en admin sur cet appareil.':'Entre le mot de passe pour gérer la roue, l’historique et le prochain film.';
+    $('admdlg').classList.add('on');$('syncsecret').focus();
+  }
+  function closeAdm(){$('admdlg').classList.remove('on')}
+  function adminLogout(){
+    $('syncsecret').value='';
+    try{localStorage.removeItem('cine_sync')}catch(e){}
+    isAdmin=false;applyAdmin();
+  }
+  async function adminLogin(){
+    var s=syncSecret();if(!s){syncSt('Entre le mot de passe.',true);return}
+    syncSt('Vérification…');
+    try{
+      var r=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'application/json','x-secret':s},body:JSON.stringify({check:true})});
+      var j=await r.json().catch(function(){return{}});
+      if(r.ok&&j.ok){syncSaveSecret();isAdmin=true;applyAdmin();closeAdm();pullRemote()}
+      else syncSt(r.status===401?'Mot de passe incorrect.':(j.error||('Erreur '+r.status)),true);
+    }catch(e){syncSt('Serveur injoignable.',true)}
+  }
+  $('adminbtn').onclick=openAdm;
+  $('admok').onclick=adminLogin;
+  $('admout').onclick=function(){adminLogout();closeAdm()};
+  $('admclose').onclick=closeAdm;
+  $('syncsecret').onkeydown=function(e){if(e.key==='Enter')adminLogin()};
+  $('admdlg').onclick=function(e){if(e.target===this)closeAdm()};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdm()});
+  applyAdmin();
+  /* un mot de passe mémorisé qui n'est plus valable (changé sur Vercel) retire l'accès admin */
+  if(isAdmin){
+    fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'application/json','x-secret':syncSecret()},body:JSON.stringify({check:true})})
+      .then(function(r){if(r.status===401)adminLogout()}).catch(function(){});
+  }
   /* la pastille se place sans animation au chargement, puis glisse ensuite ; on la recale quand la police Inter est chargée */
   requestAnimationFrame(function(){pill.classList.add('ready')});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){movePill(false)});
