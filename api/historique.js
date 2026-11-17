@@ -44,6 +44,7 @@ module.exports = async function handler(req, res) {
       if (req.headers['x-secret'] !== secret) return res.status(401).json({ ok: false, error: 'Mot de passe incorrect.' });
 
       const b = readBody(req);
+      if (b && b.check) return res.status(200).json({ ok: true });
       if (!b || !Array.isArray(b.hist)) return res.status(400).json({ ok: false, error: 'Données invalides.' });
       const clean = {
         saved: Number(b.saved) || Date.now(),
