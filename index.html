@@ -1587,6 +1587,17 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       else syncSt('Synchro refusée : '+(j.error||('code '+r.status)),true);
     }catch(e){syncSt('Serveur injoignable (synchro non envoyée).',true)}
   }
+  /* notes des viewers : celles envoyées par notes_letterboxd.py (Supabase) complètent / remplacent notes.js */
+  async function pullNotes(){
+    try{
+      var r=await fetch('/api/notes',{cache:'no-store'});
+      if(!r.ok)return;
+      var j=await r.json();
+      if(!j||!j.notes||typeof j.notes!=='object'||Array.isArray(j.notes))return;
+      window.CINE_NOTES=Object.assign({},window.CINE_NOTES||{},j.notes);
+      histSig='';renderHistory();
+    }catch(e){}
+  }
   async function pullRemote(){
     try{
       var r=await fetch(SYNC_URL,{cache:'no-store'});
@@ -1692,7 +1703,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   fileInit();
   try{var sk=localStorage.getItem('cine_sync');if(sk)$('syncsecret').value=sk}catch(e){}
   pullRemote();
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)pullRemote()});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){pullRemote();pullNotes()}});
+  pullNotes();
   /* ---- fenêtre film (clic sur une cover) ---- */
   var filmDlgTitle='',fly=null;
   function notesFor(title){
