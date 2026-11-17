@@ -103,6 +103,7 @@ h2{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:0 0 6px}
 #names{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;max-height:440px;overflow:auto}
 @media(prefers-reduced-motion:no-preference){#names li.new{animation:flash 1.4s ease-out}}
 @keyframes flash{0%{background:linear-gradient(135deg,#a56bff,#f472b6);color:#fff;transform:scale(1.2)}100%{transform:none}}
+.mult{margin-left:8px;font-size:12px;font-weight:800;color:var(--gold)}
 #names li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
 .empty-msg{color:var(--muted);font-size:14px}
 footer{padding:30px 16px 60px;text-align:center}
@@ -628,6 +629,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <h2>Réglages</h2>
   <div class="stabs" role="tablist">
     <button type="button" class="stab on" role="tab" data-p="sp-twitch" aria-selected="true">Bot Twitch</button>
+    <button type="button" class="stab" role="tab" data-p="sp-points" aria-selected="false">Points de chaîne</button>
     <button type="button" class="stab" role="tab" data-p="sp-cine" aria-selected="false">Cinédimanche</button>
     <button type="button" class="stab" role="tab" data-p="sp-discord" aria-selected="false">Discord</button>
   </div>
@@ -641,6 +643,18 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <input id="botmin" type="number" min="1" max="30" value="5">
     <label class="chk"><input id="botauto" type="checkbox"> Envoyer automatiquement au lancement du timer</label>
     <label class="chk"><input id="botremember" type="checkbox"> Mémoriser le token sur cet ordinateur</label>
+  </div>
+  <div class="spane" id="sp-points" role="tabpanel">
+    <p>Quand un viewer utilise la récompense de points de chaîne, son pseudo gagne <b>une part en plus</b> sur la roue (il est ajouté d’abord s’il n’y était pas encore). Chaque utilisation compte. Un viewer déjà tiré au sort est ignoré.</p>
+    <label class="f" for="rwname">Nom exact de la récompense (ou son ID)</label>
+    <input id="rwname" type="text" placeholder="Ex. : Une chance de plus" autocomplete="off">
+    <p id="rwseen" style="margin:6px 0 0;font-size:12px"></p>
+    <div class="brow"><button id="rwuse" class="soft" type="button" hidden>Utiliser la dernière récompense vue</button></div>
+    <label class="f" for="rwtoken">Token de la chaîne (autorisation channel:read:redemptions), pour une récompense sans texte</label>
+    <input id="rwtoken" type="password" placeholder="Facultatif" autocomplete="off">
+    <p style="font-size:12px;margin:6px 0 0"><b>Sans token :</b> la récompense doit demander un message au viewer, elle apparaît alors dans le chat et la page la lit (indique son ID ci-dessus, affiché dès qu’elle est utilisée).<br><b>Avec token :</b> la page écoute directement la chaîne, aucun texte requis. Le token doit être celui du compte de la chaîne.</p>
+    <div class="brow"><button id="rwtest" class="soft" type="button">Se connecter aux récompenses</button></div>
+    <p id="rwst" role="status" style="min-height:18px"></p>
   </div>
   <div class="spane" id="sp-cine" role="tabpanel">
     <label class="f" for="cnum">Numéro du prochain Cinédimanche (automatique : dernier numéro de l’historique + 1)</label>
@@ -1209,11 +1223,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   var ORD=['1er','2e','3e'];
   function render(){
-    $('pcount').textContent=players.length;
+    var cnt={},uniq=[];
+    players.forEach(function(p){var k=p.toLowerCase();if(cnt[k]){cnt[k]++}else{cnt[k]=1;uniq.push(p)}});
+    $('pcount').textContent=uniq.length+(players.length>uniq.length?' ('+players.length+' parts)':'');
     var q=norm($('search').value.trim()),ul=$('names');ul.innerHTML='';
-    var list=players.filter(function(p){return !q||norm(p).indexOf(q)>-1}).reverse();
+    var list=uniq.filter(function(p){return !q||norm(p).indexOf(q)>-1}).reverse();
     if(!list.length){var e=document.createElement('li');e.className='empty-msg';e.style.cssText='background:none;border:0;padding:0';e.textContent=players.length?'Aucun résultat.':'Personne pour l’instant. Les pseudos apparaissent ici.';ul.appendChild(e)}
-    list.forEach(function(p){var li=document.createElement('li');li.textContent=p;if(p===newest)li.className='new';ul.appendChild(li)});
+    list.forEach(function(p){var li=document.createElement('li');li.textContent=p;var c=cnt[p.toLowerCase()];if(c>1){var x=document.createElement('span');x.className='mult';x.textContent='×'+c;li.appendChild(x)}if(p===newest)li.className='new';ul.appendChild(li)});
     for(var k=0;k<MAX;k++){
       var s=$('s'+(k+1)),w=winners[k];
       s.classList.toggle('empty',!w);
@@ -1307,7 +1323,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       else{
         rot=rot%TAU;
         var fin=function(){
-          hl=null;spinning=false;winners.push(name);players.splice(idx,1);render();
+          hl=null;spinning=false;winners.push(name);players=players.filter(function(p){return p.toLowerCase()!==name.toLowerCase()});render();rwFlush();
           var br=cv.getBoundingClientRect();confetti(70,br.left+br.width/2,br.top+br.height*.1);
           if(winners.length>=MAX){
             $('overlay').classList.add('on');$('ovclose').focus();
@@ -1325,6 +1341,33 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     })(t0);
   }
 
+
+  /* ---- points de chaîne : une récompense ajoute une part de plus au nom du viewer ---- */
+  var rwQueue=[],rwSeen=null;
+  function rwKey(){return ($('rwname').value||'').trim().toLowerCase()}
+  function rwMatch(id,title){var k=rwKey();return !!k&&((id&&String(id).toLowerCase()===k)||(!!title&&String(title).toLowerCase()===k))}
+  function rwNote(t,bad){var n=$('rwst');if(!n)return;n.textContent=t||'';n.style.color=bad?'#fca5a5':'var(--muted)'}
+  function rwSeenSet(id,title){
+    rwSeen={id:id,title:title||''};
+    $('rwseen').textContent='Dernière récompense vue : '+(title?'« '+title+' » · ':'')+'ID '+id;
+    $('rwuse').hidden=false;
+  }
+  function redeem(name){
+    name=(name||'').trim();if(!name)return;
+    var low=name.toLowerCase();
+    if(winners.length>=MAX||winners.some(function(w){return w.toLowerCase()===low})){
+      $('lastmsg').textContent='Récompense de '+name+' ignorée (déjà tiré au sort ou roue terminée).';return;
+    }
+    if(spinning){rwQueue.push(name);return}
+    var ex=players.filter(function(p){return p.toLowerCase()===low})[0];
+    if(!ex){addPlayer(name);ex=name}
+    /* la part en plus est glissée à un endroit au hasard, pour ne pas toucher l'autre part du même pseudo */
+    players.splice(Math.floor(Math.random()*(players.length+1)),0,ex);
+    newest=ex;setTimeout(function(){if(newest===ex)newest=null},3000);
+    $('lastmsg').textContent='Points de chaîne : +1 part pour '+ex+'.';
+    render();ul0();
+  }
+  function rwFlush(){var q=rwQueue;rwQueue=[];q.forEach(redeem)}
   function status(t,live){$('status').textContent=t;var d=$('dot');d.classList.toggle('live',!!live);d.querySelector('span').textContent=live?'Connecté':'Non connecté'}
 
   function connect(){
@@ -1354,15 +1397,108 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
           /* seuls les messages envoyés par la page elle-même sont ignorés : tous les comptes (bot, streamer) peuvent participer */
           $('lastmsg').textContent+=' [ignoré : message envoyé par la page]';return;
         }
+        var rid=(m[1]||'').match(/custom-reward-id=([^;]+)/);
+        if(rid){rwSeenSet(rid[1],'');if(!esLive&&rwMatch(rid[1],''))redeem(name)}
         if(isOpen()&&norm(m[3]).indexOf('je participe')>-1)addPlayer(name);
         onChat(login,name,m[3]);
         pollChat(login,m[3]);
       });
     };
+    if(rwToken())esStart();
     ws.onerror=function(){status('Connexion impossible. Vérifie le nom de la chaîne et ta connexion.')};
     ws.onclose=function(){status('Déconnecté du chat. Clique sur « Se connecter » pour reprendre.')};
   }
 
+
+  /* ---- récompenses sans texte : EventSub (API Twitch) avec le token de la chaîne ---- */
+  var es=null,esLive=false,esTimer=0,esWatch=0,esWant=false,esCtx=null,RW_TYPE='channel.channel_points_custom_reward_redemption.add';
+  function rwToken(){return ($('rwtoken').value||'').trim().replace(/^oauth:/i,'')}
+  function esStop(){
+    esWant=false;esLive=false;clearTimeout(esTimer);clearTimeout(esWatch);
+    if(es){es.onclose=null;es.onmessage=null;es.onerror=null;try{es.close()}catch(e){}es=null}
+  }
+  function esRetry(){
+    esLive=false;clearTimeout(esWatch);
+    if(!esWant)return;
+    rwNote('Connexion aux récompenses perdue, nouvelle tentative…',true);
+    clearTimeout(esTimer);esTimer=setTimeout(function(){if(esWant)esOpen('wss://eventsub.wss.twitch.tv/ws',false)},5000);
+  }
+  function esArm(sec){clearTimeout(esWatch);esWatch=setTimeout(function(){if(es){try{es.close()}catch(e){}}},((sec||10)+6)*1000)}
+  async function esAuth(tk){
+    if(esCtx&&esCtx.token===tk)return esCtx;
+    var r=await fetch('https://id.twitch.tv/oauth2/validate',{headers:{Authorization:'OAuth '+tk}});
+    if(!r.ok)throw new Error('Token de la chaîne refusé par Twitch (invalide ou expiré).');
+    var j=await r.json(),sc=j.scopes||[];
+    if(sc.indexOf('channel:read:redemptions')<0&&sc.indexOf('channel:manage:redemptions')<0)throw new Error('Il manque l’autorisation channel:read:redemptions sur ce token.');
+    var ch=chanName();
+    if(ch&&j.login&&j.login.toLowerCase()!==ch)throw new Error('Ce token est celui de « '+j.login+' » : il doit être celui du compte de la chaîne « '+ch+' ».');
+    esCtx={token:tk,clientId:j.client_id,userId:j.user_id,login:j.login};
+    return esCtx;
+  }
+  async function esSubscribe(sid){
+    var a=await esAuth(rwToken());
+    var r=await fetch('https://api.twitch.tv/helix/eventsub/subscriptions',{method:'POST',
+      headers:{Authorization:'Bearer '+a.token,'Client-Id':a.clientId,'Content-Type':'application/json'},
+      body:JSON.stringify({type:RW_TYPE,version:'1',condition:{broadcaster_user_id:a.userId},transport:{method:'websocket',session_id:sid}})});
+    if(r.status===401){esCtx=null;throw new Error('Token de la chaîne expiré.')}
+    if(r.status===403)throw new Error('Twitch refuse l’abonnement (autorisation manquante ou chaîne non affiliée).');
+    if(r.status===429)throw new Error('Trop d’abonnements EventSub ouverts : ferme les autres pages du site et réessaie.');
+    if(!r.ok&&r.status!==409)throw new Error('Abonnement refusé par Twitch (code '+r.status+').');
+  }
+  function esOpen(url,reconnect){
+    var prev=es,sock=new WebSocket(url);
+    es=sock;
+    sock.onmessage=async function(ev){
+      var m;try{m=JSON.parse(ev.data)}catch(e){return}
+      var t=m.metadata&&m.metadata.message_type,p=m.payload||{};
+      if(t==='session_welcome'){
+        var sess=p.session||{};
+        if(reconnect&&prev&&prev!==sock){prev.onclose=null;prev.onmessage=null;try{prev.close()}catch(e){}}
+        esArm(sess.keepalive_timeout_seconds);
+        if(!reconnect){
+          try{await esSubscribe(sess.id);esLive=true;rwNote('Récompenses connectées : en écoute de la chaîne.')}
+          catch(e){rwNote(e.message,true);esWant=false;sock.onclose=null;try{sock.close()}catch(x){}es=null}
+        }else esLive=true;
+      }else if(t==='session_keepalive'){esArm((p.session&&p.session.keepalive_timeout_seconds)||10)}
+      else if(t==='notification'){
+        esArm(10);
+        var e=p.event||{},rw=e.reward||{};
+        if(m.metadata.subscription_type===RW_TYPE&&rw.id){
+          rwSeenSet(rw.id,rw.title);
+          if(rwMatch(rw.id,rw.title))redeem(e.user_name||e.user_login);
+        }
+      }else if(t==='session_reconnect'){
+        var u=p.session&&p.session.reconnect_url;if(u)esOpen(u,true);
+      }else if(t==='revocation'){
+        rwNote('Twitch a coupé l’abonnement aux récompenses (token révoqué ?). Reconnecte-toi.',true);esLive=false;
+      }
+    };
+    sock.onerror=function(){};
+    sock.onclose=function(){if(es===sock)esRetry()};
+  }
+  function esStart(){
+    esStop();
+    if(!rwToken()){rwNote('');return}
+    if(!rwKey()){rwNote('Indique d’abord le nom (ou l’ID) de la récompense.',true);return}
+    esWant=true;rwNote('Connexion aux récompenses…');
+    esAuth(rwToken()).then(function(){esOpen('wss://eventsub.wss.twitch.tv/ws',false)}).catch(function(e){esWant=false;rwNote(e.message,true)});
+  }
+  function rwSave(){
+    var o={name:($('rwname').value||'').trim()};
+    if($('botremember').checked)o.token=rwToken();
+    try{localStorage.setItem('cine_reward',JSON.stringify(o))}catch(e){}
+  }
+  function rwLoad(){
+    try{var o=JSON.parse(localStorage.getItem('cine_reward')||'null');if(!o)return;
+      if(o.name)$('rwname').value=o.name;if(o.token)$('rwtoken').value=o.token}catch(e){}
+    var C=window.CINE_CONFIG||{};if(C.reward&&!$('rwname').value)$('rwname').value=String(C.reward).trim();
+  }
+  $('rwname').onchange=rwSave;
+  $('rwtoken').onchange=function(){esCtx=null;rwSave()};
+  $('rwuse').onclick=function(){if(!rwSeen)return;$('rwname').value=rwSeen.title||rwSeen.id;rwSave();rwNote('Récompense enregistrée : '+$('rwname').value+'.')};
+  $('rwtest').onclick=function(){rwSave();if(rwToken())esStart();else rwNote('Sans token, la récompense est lue dans le chat (elle doit demander un texte). Connecte-toi au chat en haut de la page.')};
+  $('botsave').addEventListener('click',rwSave);$('botclose').addEventListener('click',rwSave);
+  rwLoad();
   $('connect').onclick=connect;
   $('channel').onkeydown=function(e){if(e.key==='Enter')connect()};
   $('add').onclick=function(){addPlayer($('manual').value);$('manual').value='';$('manual').focus()};
@@ -1370,13 +1506,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   $('spin').onclick=spin;
   $('search').oninput=render;
   $('ovclose').onclick=function(){$('overlay').classList.remove('on')};
-  $('reset').onclick=function(){if(spinning)return;pollCancel();result=null;pollNote('');wasOpen=false;setBig(false);round=Date.now();setNum();endAt=0;players=[];winners=[];films=[];listening=false;listenUI();rot=0;updateTimer();render()};
+  $('reset').onclick=function(){if(spinning)return;pollCancel();result=null;pollNote('');wasOpen=false;setBig(false);round=Date.now();setNum();endAt=0;players=[];rwQueue=[];winners=[];films=[];listening=false;listenUI();rot=0;updateTimer();render()};
   $('timer').onclick=toggleTimer;
   $('botbtn').onclick=function(){$('botdlg').classList.add('on');$('bottoken').focus()};
   $('botclose').onclick=function(){botSave();$('botdlg').classList.remove('on')};
   $('botsave').onclick=function(){botSave();botNote('Réglages enregistrés.')};
   $('bottest').onclick=function(){botSave();botRun()};
-  $('botforget').onclick=function(){$('bottoken').value='';$('botremember').checked=false;bot.ctx=null;botSave();botNote('Token oublié.')};
+  $('botforget').onclick=function(){$('rwtoken').value='';esStop();esCtx=null;rwSave();$('bottoken').value='';$('botremember').checked=false;bot.ctx=null;botSave();botNote('Token oublié.')};
   $('botauto').onchange=botSave;botLoad();
   try{var tk=localStorage.getItem('cine_tmdb');if(tk)$('tmdbkey').value=tk}catch(e){}
   try{var hk=JSON.parse(localStorage.getItem('cine_hook')||'null');if(hk){$('bothook').value=hk.u||'';$('bothooksecret').value=hk.s||'';$('bothookguild').value=hk.g||''}}catch(e){}

@@ -4,5 +4,6 @@ window.CINE_CONFIG = {
   channel: "",     // nom de ta chaîne Twitch (ex : "machaine")
   hook: "",        // adresse du bot Discord (ex : https://ton-bot.onrender.com/cine), facultatif
   hookSecret: "",  // mot de passe du bot, facultatif (visible publiquement si rempli, voir note)
-  guild: ""        // ID du serveur Discord, facultatif
+  guild: "",       // ID du serveur Discord, facultatif
+  reward: ""       // nom (ou ID) de la récompense de points de chaîne qui ajoute une part sur la roue, facultatif
 };
