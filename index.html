@@ -297,6 +297,32 @@ transform:translateX(-120%);transition:opacity .2s}
   .poster:hover,.lbcard:hover,.lbcard:hover .lbpic{transform:none}
   .poster:hover img{transform:none}.poster::after{display:none}
 }
+/* ===== animation de changement d'onglet ===== */
+nav a{position:relative;z-index:1;transition:color .25s}
+.navpill{position:absolute;left:0;top:0;width:0;height:0;border-radius:999px;background:#fff;pointer-events:none;z-index:0;opacity:0}
+nav.pilled .navpill{opacity:1}
+nav.pilled a.on{background:transparent}
+.navpill.ready{transition:transform .5s cubic-bezier(.3,1.35,.5,1),width .5s cubic-bezier(.3,1.35,.5,1),height .3s}
+/* le contenu se dévoile avec un flou, dans le sens du déplacement de l'onglet (R = vers la droite, L = vers la gauche) */
+@keyframes tabinR{
+  from{filter:blur(14px);transform:translateX(-30px);-webkit-mask-position:100% 0;mask-position:100% 0}
+  to{filter:blur(0);transform:none;-webkit-mask-position:0 0;mask-position:0 0}}
+@keyframes tabinL{
+  from{filter:blur(14px);transform:translateX(30px);-webkit-mask-position:0 0;mask-position:0 0}
+  to{filter:blur(0);transform:none;-webkit-mask-position:100% 0;mask-position:100% 0}}
+body.tabin-r>header.hero,body.tabin-r>section,body.tabin-r>footer{
+  -webkit-mask-image:linear-gradient(90deg,#000 40%,transparent 60%);mask-image:linear-gradient(90deg,#000 40%,transparent 60%);
+  -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  animation:tabinR .6s cubic-bezier(.2,.8,.2,1) backwards}
+body.tabin-l>header.hero,body.tabin-l>section,body.tabin-l>footer{
+  -webkit-mask-image:linear-gradient(270deg,#000 40%,transparent 60%);mask-image:linear-gradient(270deg,#000 40%,transparent 60%);
+  -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  animation:tabinL .6s cubic-bezier(.2,.8,.2,1) backwards}
+@media (prefers-reduced-motion:reduce){
+  body.tabin-r>header.hero,body.tabin-r>section,body.tabin-r>footer,
+  body.tabin-l>header.hero,body.tabin-l>section,body.tabin-l>footer{animation:none;-webkit-mask-image:none;mask-image:none}
+  .navpill.ready{transition:none}
+}
 /* ===== mobile / téléphone ===== */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:760px){
@@ -1597,8 +1623,29 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   /* onglets : « La roue » / « Historique » (un seul écran à la fois) */
   var navLinks=document.querySelectorAll('nav a');
+  var navEl=document.querySelector('nav'),pill=document.createElement('span'),curTab=null,animT=0,flashT=0;
+  pill.className='navpill';pill.setAttribute('aria-hidden','true');navEl.insertBefore(pill,navEl.firstChild);
+  /* pastille blanche qui glisse jusqu'à l'onglet actif */
+  function movePill(scroll){
+    var on=navEl.querySelector('a.on');if(!on||!on.offsetWidth)return;
+    pill.style.width=on.offsetWidth+'px';pill.style.height=on.offsetHeight+'px';
+    pill.style.transform='translate('+on.offsetLeft+'px,'+on.offsetTop+'px)';
+    navEl.classList.add('pilled');
+    if(scroll&&navEl.scrollWidth>navEl.clientWidth+2){
+      navEl.scrollTo({left:Math.max(0,on.offsetLeft-(navEl.clientWidth-on.offsetWidth)/2),behavior:'smooth'});
+    }
+  }
+  /* fondu + flou sur la page, et petit éclat sur la barre */
+  var TABS=['roue','prochain','historique','letterboxd','rubis'];
+  function playTabAnim(dir){
+    var b=document.body;
+    b.classList.remove('tabin-r','tabin-l');void b.offsetWidth;b.classList.add(dir<0?'tabin-l':'tabin-r');
+    clearTimeout(animT);animT=setTimeout(function(){b.classList.remove('tabin-r','tabin-l')},700);
+  }
+  window.addEventListener('resize',function(){movePill(false)});
   function setTab(t){
     t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain')?t:'roue';
+    var tabChanged=curTab!==null&&curTab!==t,tabDir=(tabChanged&&TABS.indexOf(t)<TABS.indexOf(curTab))?-1:1;curTab=t;
     document.body.classList.toggle('tab-hist',t==='historique');
     document.body.classList.toggle('tab-next',t==='prochain');
     document.body.classList.toggle('tab-lb',t==='letterboxd');
@@ -1611,6 +1658,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     if(t==='historique')renderHistory();
     if(t==='prochain')renderNext();
     if(t==='letterboxd')renderLB();
+    movePill(true);
+    if(tabChanged)playTabAnim(tabDir);
   }
   navLinks.forEach(function(a){a.onclick=function(e){
     e.preventDefault();
@@ -1620,6 +1669,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }});
   window.addEventListener('hashchange',function(){setTab(location.hash.slice(1))});
   setTab(location.hash.slice(1));
+  /* la pastille se place sans animation au chargement, puis glisse ensuite ; on la recale quand la police Inter est chargée */
+  requestAnimationFrame(function(){pill.classList.add('ready')});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){movePill(false)});
   try{var s=localStorage.getItem('cine_channel');if(s)$('channel').value=s}catch(e){}
   var q=new URLSearchParams(location.search).get('channel');
   if(q){$('channel').value=q;connect()}
