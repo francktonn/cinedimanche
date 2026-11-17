@@ -611,8 +611,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     <label class="chk"><input id="botremember" type="checkbox"> Mémoriser le token sur cet ordinateur</label>
   </div>
   <div class="spane" id="sp-cine" role="tabpanel">
-    <label class="f" for="cnum">Numéro du Cinédimanche en cours</label>
-    <input id="cnum" type="number" min="1" max="9999">
+    <label class="f" for="cnum">Numéro du prochain Cinédimanche (automatique : dernier numéro de l’historique + 1)</label>
+    <input id="cnum" type="number" readonly>
     <label class="f" for="tmdbkey">Clé API TMDB (affiches des films, gratuite sur themoviedb.org)</label>
     <input id="tmdbkey" type="password" placeholder="Clé API v3 ou jeton de lecture v4" autocomplete="off">
     <label class="f">Sauvegarde automatique de l’historique</label>
@@ -911,9 +911,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var max=Math.max.apply(null,p.counts),tied=[],total=p.counts[0]+p.counts[1]+p.counts[2];
     p.counts.forEach(function(n,i){if(n===max)tied.push(i)});
     var k=tied[Math.floor(rand(tied.length))];
-    result={k:k,counts:p.counts.slice(),total:total,tie:total>0&&tied.length>1,num:curNum};showAll=false;
-    histAdd(films[k],winners[k],Date.now(),round,curNum);
-    poll=null;pollNote('Vote terminé.');render();cineSync(films[k],winners[k],curNum);
+    var vnum=roundNum();
+    result={k:k,counts:p.counts.slice(),total:total,tie:total>0&&tied.length>1,num:vnum};showAll=false;
+    histAdd(films[k],winners[k],Date.now(),round,vnum);
+    poll=null;pollNote('Vote terminé.');render();cineSync(films[k],winners[k],vnum);
     confetti(140,window.innerWidth/2,window.innerHeight*.8);
     if(p.mode==='chat'){
       try{
@@ -1084,7 +1085,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     film=(film||'').trim();if(!film)return;
     if(rd)hist=hist.filter(function(h){return h.round!==rd});
     hist.unshift({film:film,by:(by||'').trim(),date:date||0,round:rd||0,num:num||0});
-    histSave();histSig='';renderHistory();
+    histSave();histSig='';setNum();renderHistory();
     if(typeof renderNext==='function'&&$('nextbox'))renderNext();
   }
   function renderHistory(){
@@ -1132,24 +1133,25 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         c.appendChild(ns);
       }
       var d=el('button','soft hdel','Supprimer');
-      d.onclick=function(){var i=hist.indexOf(h);if(i>-1)hist.splice(i,1);histSave();histSig='';renderHistory()};
+      d.onclick=function(){var i=hist.indexOf(h);if(i>-1)hist.splice(i,1);histSave();histSig='';setNum();renderHistory()};
       c.appendChild(d);box.appendChild(c);
     });
   }
   /* numéro du Cinédimanche en cours */
   var curNum=0;
-  function setNum(n,user){
-    curNum=n;
-    try{localStorage.setItem('cine_num',String(n))}catch(e){}
-    if(user)touch();
-    $('numchip').textContent='● Cinédimanche n°'+n;$('cnum').value=n;
+  /* numéro automatique : plus grand numéro de l'historique + 1. Si on supprime un film de test, le numéro redescend tout seul. */
+  function autoNum(){var m=0;hist.forEach(function(h){if(h.num>m)m=h.num});return m?m+1:66}
+  /* pendant un même tour, un vote relancé garde le numéro déjà attribué */
+  function roundNum(){
+    var e=hist.filter(function(h){return h.round===round&&h.num})[0];
+    return e?e.num:autoNum();
   }
-  function numInit(){
-    var n=0;
-    try{n=parseInt(localStorage.getItem('cine_num'),10)||0}catch(e){}
-    if(!n){var m=0;hist.forEach(function(h){if(h.num>m)m=h.num});n=m?m+1:66}
-    setNum(n);
+  function setNum(){
+    curNum=roundNum();
+    try{localStorage.setItem('cine_num',String(curNum))}catch(e){}
+    $('numchip').textContent='● Cinédimanche n°'+curNum;$('cnum').value=curNum;
   }
+  function numInit(){setNum()}
   histLoad();numInit();
   function makeEdit(s,idx){
     var fe=el('div','fedit'),inp=el('input'),ok=el('button','soft fok','OK'),del=el('button','soft fdel','✕');
@@ -1336,7 +1338,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   $('spin').onclick=spin;
   $('search').oninput=render;
   $('ovclose').onclick=function(){$('overlay').classList.remove('on')};
-  $('reset').onclick=function(){if(spinning)return;pollCancel();result=null;pollNote('');wasOpen=false;setBig(false);if(hist.some(function(h){return h.round===round}))setNum(curNum+1,1);round=Date.now();endAt=0;players=[];winners=[];films=[];listening=false;listenUI();rot=0;updateTimer();render()};
+  $('reset').onclick=function(){if(spinning)return;pollCancel();result=null;pollNote('');wasOpen=false;setBig(false);round=Date.now();setNum();endAt=0;players=[];winners=[];films=[];listening=false;listenUI();rot=0;updateTimer();render()};
   $('timer').onclick=toggleTimer;
   $('botbtn').onclick=function(){$('botdlg').classList.add('on');$('bottoken').focus()};
   $('botclose').onclick=function(){botSave();$('botdlg').classList.remove('on')};
@@ -1414,8 +1416,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
           if(!dup){hist.push(h);added++}
         });
       }
-      if(r.num>0&&r.num>curNum)setNum(r.num);
-      else{var mx=0;hist.forEach(function(h){if(h.num>mx)mx=h.num});if(mx>=curNum)setNum(mx+1)}
+      setNum();
       if(r.next){try{localStorage.setItem('cine_next',r.next)}catch(e){}}
       histSave();histSig='';nextSig='';bannerSig='';renderHistory();if(typeof renderNext==='function')renderNext();
       impNote((replace?'Historique remplacé : ':'Fusion terminée : ')+added+' film'+(added>1?'s':'')+' '+(replace?'chargé'+(added>1?'s':''):'ajouté'+(added>1?'s':''))+' ('+hist.length+' au total).');
@@ -1429,8 +1430,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'application/json;charset=utf-8'}));a.download='historique-cinedimanche.json';
     document.body.appendChild(a);a.click();a.remove();impNote('Sauvegarde téléchargée.');
   };
-  $('cnum').onchange=function(){var n=parseInt($('cnum').value,10);if(n>0)setNum(n,1);else $('cnum').value=curNum};
-  $('hfilm').onkeydown=$('hby').onkeydown=function(e){if(e.key==='Enter')hAdd()};
+    $('hfilm').onkeydown=$('hby').onkeydown=function(e){if(e.key==='Enter')hAdd()};
   $('big').onclick=function(){setBig(!document.body.classList.contains('big'),true)};
   document.addEventListener('fullscreenchange',function(){if(fsUs&&!document.fullscreenElement){fsUs=false;setBig(false)}});
   document.addEventListener('keydown',function(e){
@@ -1611,7 +1611,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       if(D.next)localStorage.setItem('cine_next',D.next);else localStorage.removeItem('cine_next');
       localStorage.setItem('cine_saved',String(D.saved||Date.now()));
     }catch(e){}
-    if(D.num>0)setNum(D.num);
+    setNum();
     histSig='';nextSig='';bannerSig='';renderHistory();renderNext();
   }
   async function linkFile(){
