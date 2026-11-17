@@ -1,26 +1,23 @@
-/* Fonction Vercel : lit / écrit l'historique du cinédimanche dans Upstash Redis.
+/* Fonction Vercel : lit / écrit l'historique du cinédimanche dans Supabase.
    Variables d'environnement requises (Vercel → Settings → Environment Variables) :
-   - KV_REST_API_URL + KV_REST_API_TOKEN   (ou UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN) : ajoutées automatiquement par l'intégration Upstash
-   - CINE_ADMIN_SECRET : le mot de passe que tu choisis (seul lui permet d'écrire)
+   - SUPABASE_URL          : ex. https://abcdefgh.supabase.co
+   - SUPABASE_SERVICE_KEY  : la clé secrète (service_role / sb_secret_...), JAMAIS dans le navigateur
+   - CINE_ADMIN_SECRET     : le mot de passe que tu choisis (seul lui permet d'écrire)
 */
-const KEY = 'cinedimanche:data';
+const ROW_ID = 'main';
 
 function cfg() {
   return {
-    url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
+    url: (process.env.SUPABASE_URL || '').replace(/\/+$/, ''),
+    key: process.env.SUPABASE_SERVICE_KEY || '',
   };
 }
 
-async function redis(cmd) {
-  const { url, token } = cfg();
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(cmd),
-  });
-  if (!r.ok) throw new Error('redis ' + r.status);
-  return (await r.json()).result;
+function headers(key, extra) {
+  const h = { apikey: key, 'Content-Type': 'application/json' };
+  /* les anciennes clés service_role sont des JWT (eyJ...) ; les nouvelles clés sb_secret_ ne vont que dans apikey */
+  if (key.startsWith('eyJ')) h.Authorization = 'Bearer ' + key;
+  return Object.assign(h, extra || {});
 }
 
 function readBody(req) {
@@ -30,13 +27,15 @@ function readBody(req) {
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
-  const { url, token } = cfg();
-  if (!url || !token) return res.status(500).json({ ok: false, error: 'Base Redis non configurée sur Vercel.' });
+  const { url, key } = cfg();
+  if (!url || !key) return res.status(500).json({ ok: false, error: 'Supabase non configuré sur Vercel (SUPABASE_URL / SUPABASE_SERVICE_KEY).' });
 
   try {
     if (req.method === 'GET') {
-      const raw = await redis(['GET', KEY]);
-      return res.status(200).json(raw ? JSON.parse(raw) : { empty: true });
+      const r = await fetch(url + '/rest/v1/cine_data?id=eq.' + ROW_ID + '&select=data', { headers: headers(key) });
+      if (!r.ok) throw new Error('supabase ' + r.status);
+      const rows = await r.json();
+      return res.status(200).json(rows && rows[0] && rows[0].data ? rows[0].data : { empty: true });
     }
 
     if (req.method === 'POST') {
@@ -61,7 +60,12 @@ module.exports = async function handler(req, res) {
         num: parseInt(b.num, 10) || 0,
         next: String(b.next || '').slice(0, 80),
       };
-      await redis(['SET', KEY, JSON.stringify(clean)]);
+      const r = await fetch(url + '/rest/v1/cine_data?on_conflict=id', {
+        method: 'POST',
+        headers: headers(key, { Prefer: 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ id: ROW_ID, data: clean, updated_at: new Date().toISOString() }),
+      });
+      if (!r.ok) throw new Error('supabase ' + r.status + ' ' + (await r.text()).slice(0, 150));
       return res.status(200).json({ ok: true, saved: clean.saved });
     }
 
