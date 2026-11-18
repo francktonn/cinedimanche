@@ -2368,6 +2368,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var scenes=[].slice.call(ST.querySelectorAll('.ascene')),N=scenes.length;
     var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
     var raf=0,lastP=-1;
+    window.addEventListener('load',function(){if(document.body.classList.contains('tab-home'))homeEnterLift()});
     /* durée relative de chaque scène (le vote reste plus longtemps à l'écran) */
     var WT=scenes.map(function(sc){var d=sc.getAttribute('data-s');return (d==='vote'||d==='wheel')?2.2:1}),WS=[],WSUM=0;
     WT.forEach(function(w){WS.push(WSUM);WSUM+=w});
@@ -2469,19 +2470,29 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       $('acount').textContent=two(cur+1)+' / '+two(N);
       $('ahint').style.opacity=p<.02?1:0;
     }
+    /* remonte la présentation sous la barre d'onglets : en haut de page, la scène occupe tout l'écran */
+    var ACC=$('accueil');
+    function lift(){
+      if(!document.body.classList.contains('tab-home'))return;
+      ACC.style.marginTop='0px';
+      var top=0,el=ACC;while(el){top+=el.offsetTop;el=el.offsetParent}
+      ACC.style.marginTop=(-Math.max(0,top))+'px';
+      if((window.pageYOffset||0)<=top+4&&!lift.noTop)window.scrollTo(0,0);
+    }
     function onScroll(){if(!raf)raf=requestAnimationFrame(frame)}
     if(!reduce){
       window.addEventListener('scroll',onScroll,{passive:true});
-      window.addEventListener('resize',function(){frame.force=true;onScroll()});
+      window.addEventListener('resize',function(){lift.noTop=true;lift();lift.noTop=false;frame.force=true;onScroll()});
     }
     /* liens de l'accueil vers les autres onglets */
     [].slice.call(AH.querySelectorAll('.acta a')).forEach(function(a){a.onclick=function(e){
       e.preventDefault();var t=a.getAttribute('href').slice(1);
       setTab(t);window.scrollTo(0,0);try{history.replaceState(null,'','#'+t)}catch(err){}
     }});
+    function homeEnterLift(){lift();frame.force=true;onScroll()}
     return function(){
       var ti=$('atitle');ti.classList.remove('in');void ti.offsetWidth;ti.classList.add('in');
-      frame.force=true;lastP=-1;if(!reduce)onScroll();
+      lift();frame.force=true;lastP=-1;if(!reduce)onScroll();
     };
   })();
   /* onglets : « La roue » / « Historique » (un seul écran à la fois) */
