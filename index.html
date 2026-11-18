@@ -2485,7 +2485,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       window.addEventListener('resize',function(){lift.noTop=true;lift();lift.noTop=false;frame.force=true;onScroll()});
     }
     /* liens de l'accueil vers les autres onglets */
-    [].slice.call(AH.querySelectorAll('.acta a')).forEach(function(a){a.onclick=function(e){
+    [].slice.call(AH.querySelectorAll('.acta a')).forEach(function(a){if(a.getAttribute('href').charAt(0)!=='#')return;a.onclick=function(e){
       e.preventDefault();var t=a.getAttribute('href').slice(1);
       setTab(t);window.scrollTo(0,0);try{history.replaceState(null,'','#'+t)}catch(err){}
     }});
@@ -2555,7 +2555,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     try{history.replaceState(null,'','#'+t)}catch(err){}
   }});
   window.addEventListener('hashchange',function(){setTab(location.hash.slice(1))});
-  setTab(location.hash.slice(1));
+  /* à l'arrivée sur le site : toujours l'accueil, tout en haut (scène 01) */
+  try{if('scrollRestoration' in history)history.scrollRestoration='manual'}catch(e){}
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  setTab('accueil');
+  window.scrollTo(0,0);
+  window.addEventListener('load',function(){if(curTab==='accueil')window.scrollTo(0,0)});
   /* ---- accès admin : le mot de passe est vérifié par le serveur ---- */
   function applyAdmin(){
     document.body.classList.toggle('admin',isAdmin);
