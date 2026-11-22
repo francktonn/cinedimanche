@@ -98,6 +98,8 @@ h2{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:0 0 6px}
 .slot{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
 .av{position:relative;width:104px;height:104px;border-radius:50%;background:var(--surface2);border:3px solid var(--c);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;color:var(--c);box-shadow:0 0 40px color-mix(in srgb,var(--c) 28%,transparent)}
 .slot.r1 .av{width:140px;height:140px;font-size:54px}
+.av .avimg{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.av .avimg[hidden]{display:none}
 .slot.empty .av{opacity:.35;box-shadow:none}
 .rk{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:var(--c);color:#0b0a10;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .slot b{margin-top:22px;font-size:20px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1598,6 +1600,39 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     s.appendChild(fe);
     return fe;
   }
+  /* photos de profil Twitch des gagnants */
+  var avatars={},avPend={};
+  function avCheck(u){
+    return new Promise(function(ok){var i=new Image();i.onload=function(){ok(true)};i.onerror=function(){ok(false)};i.src=u});
+  }
+  async function fetchAvatar(l){
+    try{
+      var tk=($('bottoken').value||'').trim().replace(/^oauth:/i,'');
+      if(tk){
+        var v=await fetch('https://id.twitch.tv/oauth2/validate',{headers:{Authorization:'OAuth '+tk}});
+        if(v.ok){
+          var cid=(await v.json()).client_id;
+          var u=await fetch('https://api.twitch.tv/helix/users?login='+encodeURIComponent(l),{headers:{Authorization:'Bearer '+tk,'Client-Id':cid}});
+          if(u.ok){var d=((await u.json()).data||[])[0];if(d&&d.profile_image_url&&await avCheck(d.profile_image_url))return d.profile_image_url}
+        }
+      }
+    }catch(e){}
+    try{
+      var r=await fetch('https://decapi.me/twitch/avatar/'+encodeURIComponent(l));
+      var t=(await r.text()).trim();
+      if(/^https:\/\/static-cdn\.jtvnw\.net\//.test(t)&&await avCheck(t))return t;
+    }catch(e){}
+    var f='https://unavatar.io/twitch/'+encodeURIComponent(l)+'?fallback=false';
+    if(await avCheck(f))return f;
+    return '';
+  }
+  function loadAvatar(name){
+    var l=(name||'').toLowerCase();
+    if(!l||(l in avatars)||avPend[l])return;
+    avPend[l]=1;
+    fetchAvatar(l).then(function(u){avatars[l]=u}).catch(function(){avatars[l]=''}).then(function(){delete avPend[l];if(u0(l))render()});
+    function u0(x){return winners.some(function(w){return w.toLowerCase()===x})}
+  }
   var ORD=['1er','2e','3e'];
   function render(){
     var cnt={},uniq=[];
@@ -1611,6 +1646,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       var s=$('s'+(k+1)),w=winners[k];
       s.classList.toggle('empty',!w);
       s.querySelector('.av span').textContent=w?w.charAt(0).toUpperCase():'?';
+      var avEl=s.querySelector('.av'),avImg=avEl.querySelector('.avimg');
+      if(!avImg){avImg=el('img','avimg');avImg.alt='';avImg.hidden=true;avEl.insertBefore(avImg,avEl.firstChild)}
+      if(w){
+        loadAvatar(w);
+        var au=avatars[w.toLowerCase()];
+        if(au){if(avImg.getAttribute('src')!==au)avImg.src=au;avImg.alt='Photo de profil de '+w;avImg.hidden=false}
+        else{avImg.hidden=true}
+      }else{avImg.hidden=true;avImg.removeAttribute('src')}
       s.querySelector('b').textContent=w||'En attente';
       var win=!!result&&result.k===k;
       s.classList.toggle('win',win);
