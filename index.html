@@ -24,7 +24,10 @@ border:1px solid rgba(255,255,255,.13);border-radius:999px;
 box-shadow:0 10px 34px rgba(0,0,0,.30),0 1px 0 rgba(255,255,255,.16) inset,0 -1px 0 rgba(255,255,255,.03) inset}
 .brand{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;padding-right:14px;margin-right:8px;border-right:1px solid rgba(255,255,255,.12)}
 .brand svg{width:24px;height:24px;fill:#e9e8ef}
-nav a{color:#a9a8b6;text-decoration:none;font-weight:600;font-size:14px;padding:9px 18px;border-radius:999px}
+nav a{color:#a9a8b6;text-decoration:none;font-weight:600;font-size:14px;padding:9px 18px;border-radius:999px;white-space:nowrap}
+body.admin nav a{padding:9px 10px}
+body.admin nav{gap:3px}
+body.admin #dot{white-space:nowrap;padding:8px 11px}
 nav a:hover{color:#fff}
 nav a.on{background:linear-gradient(180deg,#fff,#e5e5eb);color:#17161d}
 nav a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
@@ -492,6 +495,74 @@ body.tab-next.hasacc .nnum{color:rgb(var(--acc))}
 .vrow b{display:inline-flex;align-items:center;gap:6px;color:var(--gold);white-space:nowrap;font-variant-numeric:tabular-nums}
 .vlink{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,.25);text-underline-offset:3px}
 .vlink:hover{color:var(--violet);text-decoration-color:var(--violet)}
+/* ===== tableau de bord admin ===== */
+body.tab-admin .hero,body.tab-admin #roue,body.tab-admin #resultsec,body.tab-admin footer{display:none}
+body:not(.tab-admin) #admintab{display:none}
+body:not(.admin) nav a[href="#admin"],body:not(.admin) .hcard .hedit,body:not(.admin) .fedit{display:none!important}
+#admintab{padding-top:44px}
+.admstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 26px}
+.admstat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;min-width:0}
+.admstat b{display:block;font-size:26px;font-weight:900;letter-spacing:-.03em;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admstat b.sm{font-size:16px;line-height:1.7}
+.admstat small{color:var(--muted);font-weight:600;font-size:12px}
+.admbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.admbar input[type=search]{flex:1 1 260px;max-width:480px}
+.admst{color:var(--muted);font-size:13px;margin:0 0 14px;min-height:1.4em}
+.admlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
+.admrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.admrow:last-child{border-bottom:0}
+.admrow:hover{background:rgba(255,255,255,.025)}
+.admthumb{width:44px;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.admthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.admtit{min-width:0}
+.admtit b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.admtit small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admbadges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.admbadge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(176,108,255,.15);color:#d8b9ff;border:1px solid rgba(176,108,255,.35);white-space:nowrap}
+.admbadge.warn{background:rgba(245,158,11,.12);color:#fcd34d;border-color:rgba(245,158,11,.35)}
+.admbadge.next{background:rgba(244,114,182,.15);color:#f9a8d4;border-color:rgba(244,114,182,.4)}
+.admact{display:flex;gap:8px}
+.admact button{padding:8px 14px;font-size:13px}
+@media(max-width:760px){.admrow{grid-template-columns:44px minmax(0,1fr) auto}.admbadges{display:none}.admact{flex-direction:column}}
+.hacts{margin-top:auto;display:flex;gap:6px;flex-wrap:wrap}
+.hcard .hedit{padding:6px 10px;font-size:12px}
+.fedit{display:block;margin-top:14px}
+#editdlg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,6,12,.78);backdrop-filter:blur(5px);z-index:22}
+#editdlg.on{display:flex}
+.editbox{width:min(920px,100%)}
+.editbox h3{margin:0 44px 4px 0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.edgrid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;margin-top:16px}
+@media(max-width:700px){.edgrid{grid-template-columns:1fr}.edposter{max-width:260px}}
+.edposter{display:flex;flex-direction:column;gap:10px}
+.edprev{width:100%;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:42px}
+.edprev img{width:100%;height:100%;object-fit:cover;display:block}
+.edposter input[type=text]{flex:none;width:100%}
+.edbtns{display:flex;flex-direction:column;gap:8px}
+.edbtns button{padding:9px 12px;font-size:13px}
+.edfields{display:flex;flex-direction:column;gap:12px;min-width:0}
+.edl{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--muted);min-width:0}
+.edl input,.edl textarea{flex:none;width:100%;font-weight:500}
+.edl textarea{font:inherit;font-size:14px;font-weight:500;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;resize:vertical;min-height:110px}
+.edrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.edrow.ed2{grid-template-columns:minmax(0,.8fr) minmax(0,2fr)}
+@media(max-width:560px){.edrow,.edrow.ed2{grid-template-columns:1fr 1fr}}
+.edsearch{display:flex;gap:8px}
+.edsearch input{flex:1 1 auto;width:auto}
+.edsearch button{padding:8px 14px;font-size:13px;flex:none}
+#edextra{margin-top:14px}
+.edgridp{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;max-height:300px;overflow:auto;padding:4px}
+.edgridp button{padding:0;border:2px solid transparent;border-radius:8px;background:var(--surface2);overflow:hidden;aspect-ratio:2/3}
+.edgridp button.sel{border-color:var(--violet)}
+.edgridp img{width:100%;height:100%;object-fit:cover;display:block}
+.edres{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface2);color:var(--text);border:1px solid var(--line);padding:8px 12px;margin:0 0 8px;border-radius:12px;font-weight:700}
+.edres img{width:40px;border-radius:4px}
+.edres small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.edact{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+#edmsg{min-height:1.4em;margin:12px 0 0}
+@media (prefers-reduced-motion:no-preference){
+  #editdlg.on{animation:fdbg .3s ease-out}
+  #editdlg.on .filmbox{animation:fdbox .42s cubic-bezier(.2,.9,.25,1)}
+}
 /* ===== fenêtre film (cover cliquée) ===== */
 #filmdlg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,6,12,.78);backdrop-filter:blur(5px);z-index:20}
 #filmdlg.on{display:flex}
@@ -698,6 +769,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <a href="#historique">Historique</a>
   <a href="#letterboxd">Letterboxd</a>
   <a href="#rubis">RUBIS</a>
+  <a href="#admin">Tableau de bord</a>
   <a href="#roue">La roue</a>
   <div class="spacer"></div>
   <div id="dot"><i></i><span>Non connecté</span></div>
@@ -770,6 +842,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   </div>
   <div class="hgrid" id="histlist"></div>
 </section>
+
+<section id="admintab" aria-label="Tableau de bord administrateur"></section>
 
 <section id="accueil" aria-label="Présentation du cinédimanche">
   <div class="ah" id="ah">
@@ -940,6 +1014,44 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <div id="filmdlg" role="dialog" aria-modal="true" aria-labelledby="filmtitle"><div class="filmbox">
   <button id="filmclose" class="soft fclose" type="button" aria-label="Fermer">✕</button>
   <div id="filmbody"></div>
+</div></div>
+<div id="editdlg" role="dialog" aria-modal="true" aria-labelledby="edtitle"><div class="filmbox editbox">
+  <button id="edclose" class="soft fclose" type="button" aria-label="Fermer">✕</button>
+  <h3 id="edtitle">Modifier le film</h3>
+  <p class="sub" id="edkey" style="margin:0"></p>
+  <div class="edgrid">
+    <div class="edposter">
+      <div class="edprev" id="edprev">🎬</div>
+      <input id="edposter" type="text" placeholder="URL de l’affiche (https://…)" aria-label="URL de l’affiche" autocomplete="off">
+      <div class="edbtns">
+        <button id="edupload" class="soft" type="button">Téléverser une image</button>
+        <button id="edtmdbposters" class="soft" type="button">Choisir parmi les affiches TMDB</button>
+        <button id="edposterreset" class="soft" type="button">Affiche d’origine</button>
+      </div>
+      <input id="edfile" type="file" accept="image/*" hidden>
+    </div>
+    <div class="edfields">
+      <label class="edl">Titre affiché<input id="edtitleinp" type="text" maxlength="120" autocomplete="off"></label>
+      <div class="edrow">
+        <label class="edl">N° du cinédimanche<input id="ednum" type="number" min="0" max="9999"></label>
+        <label class="edl">Demandé par<input id="edby" type="text" maxlength="40" autocomplete="off"></label>
+        <label class="edl">Date<input id="eddate" type="date"></label>
+      </div>
+      <div class="edrow">
+        <label class="edl">Année<input id="edyear" type="text" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+        <label class="edl">Durée (minutes)<input id="edruntime" type="number" min="0" max="999"></label>
+        <label class="edl">Genres (séparés par des virgules)<input id="edgenres" type="text" maxlength="160" autocomplete="off"></label>
+      </div>
+      <label class="edl">Synopsis<textarea id="edover" rows="6" maxlength="4000"></textarea></label>
+      <div class="edrow ed2">
+        <label class="edl">ID TMDB<input id="edtmdb" type="number" min="0"></label>
+        <label class="edl">Mauvais film ? Chercher sur TMDB<span class="edsearch"><input id="edsearch" type="text" maxlength="80" autocomplete="off"><button id="edsearchbtn" class="soft" type="button">Chercher</button></span></label>
+      </div>
+    </div>
+  </div>
+  <div id="edextra"></div>
+  <p id="edmsg" class="hres" role="status"></p>
+  <div class="edact"><button id="edsave" type="button">Enregistrer</button><button id="edreset" class="soft" type="button">Réinitialiser les infos</button><button id="edcancel" class="soft" type="button">Annuler</button></div>
 </div></div>
 <div id="viewerdlg" role="dialog" aria-modal="true" aria-labelledby="vptitle"><div class="filmbox vbox">
   <button id="vpclose" class="soft fclose" type="button" aria-label="Fermer">✕</button>
@@ -1139,6 +1251,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   function botAuto(){if(botCfg().auto)botRun()}
   var posters={},pending={};
+  /* ---- personnalisations des films (admin) : état partagé, déclaré tôt ---- */
+  var filmOvr={},ovrTs=0,ovrPosterSet={},nextRaw={},admT=0;
+  function dispTitle(t){var o=filmOvr[t];return (o&&o.title)||t}
+  function syncOvrPosters(){
+    Object.keys(ovrPosterSet).forEach(function(t){if(!(filmOvr[t]&&filmOvr[t].poster)){delete ovrPosterSet[t];delete posters[t]}});
+    Object.keys(filmOvr).forEach(function(t){if(filmOvr[t].poster){posters[t]=filmOvr[t].poster;ovrPosterSet[t]=1}});
+  }
   function tmdbKey(){return ($('tmdbkey').value||'').trim()}
   function parseFilm(t){var m=t.match(/^(.*?)[\s(\[]*((?:19|20)\d\d)[)\]]?\s*$/);return m&&m[1].trim()?{q:m[1].trim(),y:m[2]}:{q:t.trim(),y:''}}
   function loadPoster(title){
@@ -1146,6 +1265,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     if(!title||!k||(title in posters)||pending[title])return;
     pending[title]=1;
     var p=parseFilm(title),h={};
+    var fo=filmOvr[title],fid=fo&&parseInt(fo.tmdb,10)||0;
+    if(fid){
+      tmdbGet('/movie/'+fid).then(function(d){posters[title]=d.poster_path?'https://image.tmdb.org/t/p/w342'+d.poster_path:''})
+        .catch(function(){posters[title]=''}).then(function(){delete pending[title];render();if(curTab==='admin'){clearTimeout(admT);admT=setTimeout(renderAdminTab,150)}});
+      return;
+    }
     function search(withYear){
       var u='https://api.themoviedb.org/3/search/movie?include_adult=false&language=fr-FR&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'');
       if(k.length>40)h.Authorization='Bearer '+k;else u+='&api_key='+encodeURIComponent(k);
@@ -1154,7 +1279,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     }
     search(true).then(function(r){return r||(p.y?search(false):null)}).then(function(r){
       posters[title]=r?'https://image.tmdb.org/t/p/w342'+r.poster_path:'';
-    }).catch(function(){posters[title]=''}).then(function(){delete pending[title];render()});
+    }).catch(function(){posters[title]=''}).then(function(){delete pending[title];render();if(curTab==='admin'){clearTimeout(admT);admT=setTimeout(renderAdminTab,150)}});
   }
   /* ---- vote des films ---- */
   var poll=null,result=null,showAll=false,POLLSEC=120;
@@ -1385,7 +1510,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     if(typeof renderNext==='function'&&$('nextbox'))renderNext();
   }
   function renderHistory(){
-    var sig=hist.map(function(h){return h.film+'|'+h.by+'|'+h.date+'|'+h.num+'|'+(posters[h.film]||'')}).join('§')+'|'+(tmdbKey()?1:0)+'|'+nextCurrent().t+'|'+histQ;
+    var sig=hist.map(function(h){return h.film+'|'+h.by+'|'+h.date+'|'+h.num+'|'+(posters[h.film]||'')}).join('§')+'|'+(tmdbKey()?1:0)+'|'+nextCurrent().t+'|'+histQ+'|'+ovrTs;
     if(sig===histSig)return;
     histSig=sig;
     var box=$('histlist');box.innerHTML='';
@@ -1417,7 +1542,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       if(h===nextH)c.appendChild(el('span','nextbadge','Prochain film'));
       var NB='\u00a0';
       c.appendChild(el('small','hnum',h.num?'Cinédimanche n°'+h.num:NB));
-      var tt=el('b','',h.film);tt.title=h.film;c.appendChild(tt);
+      var tt=el('b','',dispTitle(h.film));tt.title=dispTitle(h.film);c.appendChild(tt);
       var byl=el('small','','Demandé par ');if(h.by){var bvl=el('button','vlink',h.by);bvl.type='button';bvl.setAttribute('data-viewer',h.by);byl.appendChild(bvl)}byl.title='Demandé par '+h.by;
       c.appendChild(h.by?byl:el('small','',NB));
       if(anyDate)c.appendChild(el('small','',h.date?new Date(h.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):NB));
@@ -1428,9 +1553,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         ns.appendChild(el('i','','('+nt.count+' note'+(nt.count>1?'s':'')+')'));
         c.appendChild(ns);
       }
+      var ed=el('button','soft hedit','Modifier');ed.type='button';ed.onclick=function(){openEdit(h.film)};
       var d=el('button','soft hdel','Supprimer');
       d.onclick=function(){var i=hist.indexOf(h);if(i>-1)hist.splice(i,1);histSave();histSig='';setNum();renderHistory()};
-      c.appendChild(d);box.appendChild(c);
+      var acts=el('div','hacts');acts.appendChild(ed);acts.appendChild(d);
+      c.appendChild(acts);box.appendChild(c);
     });
   }
   /* numéro du Cinédimanche en cours */
@@ -2170,7 +2297,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     if(info&&info.genres&&info.genres.length)meta.push(info.genres.slice(0,3).join(', '));
     if(meta.length)main.appendChild(el('p','fmeta',meta.join(' · ')));
     var syn;
-    if(!hasKey)syn=el('p','fsyn muted','Ajoute une clé TMDB (bouton Réglages) pour afficher le synopsis.');
+    if(!hasKey&&!(info&&info.overview))syn=el('p','fsyn muted','Ajoute une clé TMDB (bouton Réglages) pour afficher le synopsis.');
     else if(!info)syn=el('p','fsyn muted','Chargement…');
     else if(info.none)syn=el('p','fsyn muted',info.err?'Impossible de joindre TMDB pour le moment.':'Synopsis introuvable (film absent de TMDB).');
     else syn=el('p','fsyn'+(info.overview?'':' muted'),info.overview||'Pas de synopsis disponible.');
@@ -2178,6 +2305,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var lk=el('a','flink','Voir sur Letterboxd ↗');
     lk.href=(info&&info.id)?'https://letterboxd.com/tmdb/'+info.id+'/':'https://letterboxd.com/search/films/'+encodeURIComponent(t)+'/';
     lk.target='_blank';lk.rel='noopener';main.appendChild(lk);
+    var feb=el('button','soft fedit','✎ Modifier les infos du film');feb.type='button';feb.onclick=function(){openEdit(t)};main.appendChild(feb);
     top.appendChild(main);
     if(fly)cv.style.visibility='hidden';
     /* seul le haut est reconstruit quand le synopsis arrive : les notes ne se rejouent pas */
@@ -2225,7 +2353,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   function closeFilm(){endFly();filmDlgTitle='';$('filmdlg').classList.remove('on')}
   $('filmclose').onclick=closeFilm;
   $('filmdlg').onclick=function(e){if(e.target===this)closeFilm()};
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('filmdlg').classList.contains('on')&&!$('viewerdlg').classList.contains('on')){e.stopImmediatePropagation();closeFilm()}},true);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('filmdlg').classList.contains('on')&&!$('viewerdlg').classList.contains('on')&&!$('editdlg').classList.contains('on')){e.stopImmediatePropagation();closeFilm()}},true);
   /* un clic sur une cover ouvre la fenêtre du film (clic milieu / Ctrl+clic : lien Letterboxd comme avant) */
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[data-film]');
@@ -2272,7 +2400,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   var nextInfo={},nextPend={},nextSig='',lbRate={},nAnimKey='',nAnimT=0;
   function nextCurrent(){
     var m='';try{m=(localStorage.getItem('cine_next')||'').trim()}catch(e){}
-    if(m)return {t:m,manual:true,by:'',num:0};
+    if(m){var he=hist.filter(function(x){return x.film===m})[0];return {t:m,manual:true,by:he?he.by:'',num:he?he.num:0}}
     if(!hist.length)return {t:'',manual:false,by:'',num:0};
     var s=hist.slice().sort(function(a,b){return (b.num||0)-(a.num||0)||(b.date||0)-(a.date||0)})[0];
     return {t:s.film,manual:false,by:s.by||'',num:s.num||0};
@@ -2283,23 +2411,25 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     return fetch(u,{headers:h}).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()});
   }
   function loadNext(title){
-    if(!title||!tmdbKey()||(title in nextInfo)||nextPend[title])return;
+    if(!title||!tmdbKey()||(title in nextRaw)||nextPend[title])return;
     nextPend[title]=1;
-    var p=parseFilm(title);
+    var p=parseFilm(title),forced=(filmOvr[title]&&parseInt(filmOvr[title].tmdb,10))||0;
     function search(withYear){
       return tmdbGet('/search/movie','&include_adult=false&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'')).then(function(j){return (j.results||[])[0]||null});
     }
-    search(true).then(function(r){return r||(p.y?search(false):null)}).then(function(r){
-      if(!r){nextInfo[title]={none:true};return}
+    (forced?Promise.resolve({id:forced}):search(true).then(function(r){return r||(p.y?search(false):null)})).then(function(r){
+      if(!r){nextRaw[title]={none:true};return}
       return tmdbGet('/movie/'+r.id).then(function(d){
         var info={id:d.id,title:d.title||r.title||title,year:(d.release_date||'').slice(0,4),runtime:d.runtime||0,
           genres:(d.genres||[]).map(function(g){return g.name}),overview:d.overview||'',
           poster:d.poster_path?'https://image.tmdb.org/t/p/w500'+d.poster_path:''};
         if(info.overview)return info;
         return tmdbGet('/movie/'+r.id,'','en-US').then(function(e){info.overview=e.overview||'';return info}).catch(function(){return info});
-      }).then(function(info){nextInfo[title]=info});
-    }).catch(function(){nextInfo[title]={none:true,err:true}}).then(function(){
-      delete nextPend[title];renderNext();if(filmDlgTitle===title)renderFilmDlg();
+      }).then(function(info){nextRaw[title]=info});
+    }).catch(function(){nextRaw[title]={none:true,err:true}}).then(function(){
+      delete nextPend[title];rebuildInfo(title);renderNext();if(filmDlgTitle===title)renderFilmDlg();
+      try{edLoaded(title)}catch(e){}
+      if(curTab==='admin'){clearTimeout(admT);admT=setTimeout(renderAdminTab,150)}
     });
   }
   /* couleur dominante d'une affiche (au mieux : l'image doit être lisible par le navigateur) */
@@ -2438,6 +2568,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     function setNext(){var t=ni.value.trim();if(!t)return;try{localStorage.setItem('cine_next',t.slice(0,80))}catch(e){}touch();nextSig='';renderNext()}
     nb.onclick=setNext;ni.onkeydown=function(e){if(e.key==='Enter')setNext()};
     ne.appendChild(ni);ne.appendChild(nb);
+    if(cur.t){var em=el('button','soft','✎ Modifier les infos du film');em.type='button';em.onclick=function(){openEdit(cur.t)};ne.appendChild(em)}
     if(cur.manual){
       var rb=el('button','soft','Revenir au dernier film voté');
       rb.onclick=function(){try{localStorage.removeItem('cine_next')}catch(e){}touch();nextSig='';renderNext()};
@@ -2446,6 +2577,326 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     box.appendChild(ne);
     if(!cur.manual&&cur.t)box.appendChild(el('p','nextnote','Par défaut : le dernier film voté dans l’historique.'));
   }
+  /* ---- tableau de bord admin : personnalisation des films ---- */
+  function histEntry(t){return hist.filter(function(h){return h.film===t})[0]||null}
+  function ovrNorm(u){return String(u||'').replace(/\/t\/p\/w\d+\//,'/t/p/X/')}
+  function hasKeys(o){return !!o&&Object.keys(o).length>0}
+  function ovrCleanOne(o){
+    if(!o||typeof o!=='object')return null;var c={};
+    if(typeof o.title==='string'&&o.title.trim())c.title=o.title.trim().slice(0,120);
+    if(o.year&&/^\d{4}$/.test(String(o.year)))c.year=String(o.year);
+    var rt=parseInt(o.runtime,10);if(rt>0&&rt<1000)c.runtime=rt;
+    if(Array.isArray(o.genres)){var g=o.genres.map(function(x){return String(x).trim().slice(0,40)}).filter(Boolean).slice(0,8);if(g.length)c.genres=g}
+    if(typeof o.overview==='string'&&o.overview.trim())c.overview=o.overview.trim().slice(0,4000);
+    if(typeof o.poster==='string'&&/^(https:\/\/|data:image\/)/.test(o.poster))c.poster=o.poster;
+    var tm=parseInt(o.tmdb,10);if(tm>0)c.tmdb=tm;
+    return hasKeys(c)?c:null;
+  }
+  function ovrCleanAll(f){var r={};Object.keys(f||{}).forEach(function(t){var c=ovrCleanOne(f[t]);if(c&&t.trim())r[t]=c});return r}
+  /* nextInfo = infos TMDB (nextRaw) recouvertes par les personnalisations de l'admin */
+  function rebuildInfo(t){
+    var raw=nextRaw[t],o=filmOvr[t];
+    if(!raw&&!o){delete nextInfo[t];return}
+    if(!o){nextInfo[t]=raw;return}
+    var info=(raw&&!raw.none)?Object.assign({},raw):{};
+    if(o.title)info.title=o.title;
+    if(o.year)info.year=String(o.year);
+    if(o.runtime)info.runtime=+o.runtime;
+    if(o.genres&&o.genres.length)info.genres=o.genres.slice();
+    if(o.overview)info.overview=o.overview;
+    if(o.poster)info.poster=o.poster;
+    if(o.tmdb&&!info.id)info.id=+o.tmdb;
+    nextInfo[t]=info;
+  }
+  function rebuildAll(){
+    var ks={};
+    [nextRaw,filmOvr,nextInfo].forEach(function(m){Object.keys(m).forEach(function(k){ks[k]=1})});
+    Object.keys(ks).forEach(rebuildInfo);
+  }
+  function refreshAll(){
+    histSig='';nextSig='';nAnimKey='';
+    try{
+      if(curTab==='historique')renderHistory();
+      if(curTab==='prochain')renderNext();
+      if(filmDlgTitle)renderFilmDlg();
+      if(curTab==='admin')renderAdminTab();
+    }catch(e){}
+  }
+  function ovrApplyAll(){syncOvrPosters();rebuildAll();refreshAll()}
+  /* stockage : appareil + serveur (/api/films) */
+  var filmsStText='',filmsStBad=false,ovrPushTimer=0;
+  function filmsSt(t,bad){filmsStText=t||'';filmsStBad=!!bad;var e=$('filmsst');if(e){e.textContent=filmsStText;e.style.color=bad?'#fca5a5':''}}
+  function ovrLoadLocal(){
+    try{
+      var j=JSON.parse(localStorage.getItem('cine_films')||'null');
+      if(j&&typeof j==='object'&&!Array.isArray(j))filmOvr=ovrCleanAll(j);
+      ovrTs=parseInt(localStorage.getItem('cine_films_ts'),10)||0;
+    }catch(e){}
+  }
+  function ovrSaveLocal(){try{localStorage.setItem('cine_films',JSON.stringify(filmOvr));localStorage.setItem('cine_films_ts',String(ovrTs))}catch(e){filmsSt('Espace de stockage du navigateur plein : affiche trop lourde ?',true)}}
+  function ovrTouch(){ovrTs=Date.now();ovrSaveLocal();clearTimeout(ovrPushTimer);ovrPushTimer=setTimeout(ovrPush,500)}
+  async function ovrPush(){
+    var s=syncSecret();
+    if(!s){filmsSt('Enregistré sur cet appareil seulement (connecte-toi en admin pour publier).',true);return}
+    try{
+      var r=await fetch('/api/films',{method:'POST',headers:{'Content-Type':'application/json','x-secret':s},body:JSON.stringify({films:filmOvr,saved:ovrTs})});
+      var j=await r.json().catch(function(){return{}});
+      if(r.ok&&j.ok)filmsSt('Personnalisations publiées sur le serveur à '+new Date().toLocaleTimeString('fr-FR')+'.');
+      else filmsSt('Publication refusée : '+(j.error||('code '+r.status))+(r.status===404?' (fichier api/films.js absent du projet ?)':''),true);
+    }catch(e){filmsSt('Serveur injoignable : modifications gardées sur cet appareil.',true)}
+  }
+  async function pullFilms(){
+    try{
+      var r=await fetch('/api/films',{cache:'no-store'});
+      if(!r.ok)return;
+      var j=await r.json(),admin=document.body.classList.contains('admin');
+      if(j&&j.empty){
+        if(admin&&hasKeys(filmOvr)&&syncSecret())ovrPush();
+        else if(!admin&&hasKeys(filmOvr)){filmOvr={};ovrTs=0;ovrSaveLocal();ovrApplyAll()}
+        return;
+      }
+      if(!j||!j.films||typeof j.films!=='object'||Array.isArray(j.films))return;
+      var rem=j.saved||0;
+      if(admin&&syncSecret()&&ovrTs>rem){ovrPush();return}
+      if(rem!==ovrTs){filmOvr=ovrCleanAll(j.films);ovrTs=rem;ovrSaveLocal();ovrApplyAll()}
+    }catch(e){}
+  }
+  /* ---- onglet « Tableau de bord » ---- */
+  var admQ='';
+  function renderAdminTab(){
+    var box=$('admintab');if(!box)return;
+    var foc=document.activeElement&&document.activeElement.id==='admq',pos=foc?document.activeElement.selectionStart:0;
+    box.innerHTML='';
+    box.appendChild(el('h2','','Tableau de bord'));
+    box.appendChild(el('p','sub','Modifie l’affiche, le synopsis et toutes les infos des films. Les changements sont publiés pour tous les visiteurs.'));
+    var nx=nextCurrent(),sorted=hist.slice().sort(function(a,b){return (b.num||0)-(a.num||0)||(b.date||0)-(a.date||0)});
+    var notesN=0,N=window.CINE_NOTES||{};Object.keys(N).forEach(function(k){if(N[k]&&N[k].avg)notesN++});
+    var noPoster=sorted.filter(function(h){return posters[h.film]===''}).length;
+    var st=el('div','admstats');
+    function stat(v,l,sm){var d=el('div','admstat');d.appendChild(el('b',sm?'sm':'',v));d.appendChild(el('small','',l));st.appendChild(d)}
+    stat(String(hist.length),'films dans l’historique');
+    stat(nx.t?dispTitle(nx.t):'—','prochain film',true);
+    stat(String(Object.keys(filmOvr).length),'films personnalisés');
+    stat(String(notesN),'films avec des notes');
+    stat(String(noPoster),'sans affiche');
+    box.appendChild(st);
+    var bar=el('div','admbar'),q=el('input');q.id='admq';q.type='search';q.placeholder='Rechercher un film, un numéro ou un viewer…';q.value=admQ;q.setAttribute('aria-label','Rechercher dans les films');q.autocomplete='off';q.maxLength=80;
+    q.oninput=function(){admQ=this.value;renderAdminTab()};bar.appendChild(q);
+    var ex=el('button','soft','Exporter les personnalisations');ex.type='button';
+    ex.onclick=function(){
+      var b=new Blob([JSON.stringify({films:filmOvr,saved:ovrTs},null,1)],{type:'application/json'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(b);a.download='cinedimanche_films.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    };
+    var im=el('button','soft','Importer');im.type='button';
+    var fi=el('input');fi.type='file';fi.accept='.json,application/json';fi.hidden=true;
+    im.onclick=function(){fi.click()};
+    fi.onchange=function(){
+      var f=fi.files&&fi.files[0];if(!f)return;
+      var fr=new FileReader();
+      fr.onload=function(){
+        try{
+          var j=JSON.parse(fr.result),src=(j&&j.films&&typeof j.films==='object')?j.films:j,c=ovrCleanAll(src);
+          if(!hasKeys(c)){filmsSt('Aucune personnalisation trouvée dans ce fichier.',true);return}
+          Object.assign(filmOvr,c);ovrTouch();ovrApplyAll();filmsSt(Object.keys(c).length+' film(s) importé(s).');
+        }catch(e){filmsSt('Fichier illisible.',true)}
+      };
+      fr.readAsText(f);fi.value='';
+    };
+    bar.appendChild(ex);bar.appendChild(im);bar.appendChild(fi);box.appendChild(bar);
+    var s=el('p','admst');s.id='filmsst';s.setAttribute('role','status');s.textContent=filmsStText;if(filmsStBad)s.style.color='#fca5a5';box.appendChild(s);
+    var qq=admQ.trim().toLowerCase(),list=el('div','admlist');
+    var shown=sorted.filter(function(h){
+      if(!qq)return true;
+      return (h.film+' '+dispTitle(h.film)+' '+h.by+' '+(h.num?'n'+h.num+' '+h.num:'')).toLowerCase().indexOf(qq)>-1;
+    });
+    if(!shown.length)list.appendChild(el('p','empty-msg',hist.length?'Aucun film trouvé.':'L’historique est vide.'));
+    shown.forEach(function(h){
+      loadPoster(h.film);
+      var row=el('div','admrow'),th=el('div','admthumb'),src=posters[h.film];
+      if(src){var i=el('img');i.src=src;i.alt='';i.loading='lazy';th.appendChild(i)}else th.textContent='🎬';
+      row.appendChild(th);
+      var tt=el('div','admtit'),dt=dispTitle(h.film);tt.appendChild(el('b','',dt));
+      var sm=[];if(dt!==h.film)sm.push('« '+h.film+' »');if(h.num)sm.push('n°'+h.num);sm.push(h.by?'Demandé par '+h.by:'Demandeur non renseigné');
+      tt.appendChild(el('small','',sm.join(' · ')));row.appendChild(tt);
+      var bg=el('div','admbadges');
+      if(h.film===nx.t)bg.appendChild(el('span','admbadge next','Prochain'));
+      if(hasKeys(filmOvr[h.film]))bg.appendChild(el('span','admbadge','Personnalisé'));
+      if(posters[h.film]==='')bg.appendChild(el('span','admbadge warn','Sans affiche'));
+      row.appendChild(bg);
+      var ac=el('div','admact'),b1=el('button','','Modifier');b1.type='button';b1.onclick=function(){openEdit(h.film)};
+      var b2=el('button','soft','Fiche');b2.type='button';b2.onclick=function(){openFilm(h.film)};
+      ac.appendChild(b1);ac.appendChild(b2);row.appendChild(ac);list.appendChild(row);
+    });
+    box.appendChild(list);
+    if(foc){var nq=$('admq');nq.focus();try{nq.setSelectionRange(pos,pos)}catch(e){}}
+  }
+  /* ---- éditeur d'un film ---- */
+  var edTitle='',edRaw=null,edBasePoster='',edPoster='',edWait=false;
+  function edv(id){return ($(id).value||'').trim()}
+  function edMsg(t,bad){var e=$('edmsg');e.textContent=t||'';e.style.color=bad?'#fca5a5':''}
+  function edSetPoster(u){
+    edPoster=u||'';
+    var pv=$('edprev');pv.innerHTML='';
+    if(edPoster){var i=el('img');i.src=edPoster;i.alt='Aperçu de l’affiche';pv.appendChild(i)}else pv.textContent='🎬';
+    $('edposter').value=(edPoster&&edPoster.indexOf('data:')!==0)?edPoster:'';
+    $('edposter').placeholder=(edPoster.indexOf('data:')===0)?'Image téléversée (colle une URL pour la remplacer)':'URL de l’affiche (https://…)';
+  }
+  function openEdit(title){
+    if(!isAdmin||!title)return;
+    edTitle=title;$('edextra').innerHTML='';edMsg('');
+    var key=!!tmdbKey();
+    if(key)loadNext(title);
+    var raw=nextRaw[title];edWait=key&&!(title in nextRaw);
+    edRaw=(raw&&!raw.none)?raw:null;
+    var o=filmOvr[title]||{},h=histEntry(title);
+    $('edkey').textContent='« '+title+' »'+(h&&h.num?' · Cinédimanche n°'+h.num:'');
+    $('edtitleinp').placeholder=title;
+    $('edtitleinp').value=o.title||(edRaw&&edRaw.title)||'';
+    $('ednum').value=h&&h.num?h.num:'';
+    $('edby').value=h?h.by:'';
+    $('eddate').value=(h&&h.date)?new Date(h.date).toISOString().slice(0,10):'';
+    $('edyear').value=o.year||(edRaw&&edRaw.year)||'';
+    $('edruntime').value=o.runtime||(edRaw&&edRaw.runtime)||'';
+    $('edgenres').value=(o.genres||(edRaw&&edRaw.genres)||[]).join(', ');
+    $('edover').value=o.overview||(edRaw&&edRaw.overview)||'';
+    $('edtmdb').value=o.tmdb||(edRaw&&edRaw.id)||'';
+    $('edsearch').value=parseFilm(title).q;
+    edBasePoster=(edRaw&&edRaw.poster)||(!ovrPosterSet[title]&&posters[title])||'';
+    edSetPoster(o.poster||edBasePoster);
+    $('edsave').disabled=edWait;
+    if(edWait)edMsg('Chargement des infos TMDB…');
+    $('editdlg').classList.add('on');
+    var bx=document.querySelector('#editdlg .filmbox');if(bx)bx.scrollTop=0;
+    $('edtitleinp').focus();
+  }
+  /* appelé quand les infos TMDB d'un film arrivent pendant que l'éditeur est ouvert */
+  function edLoaded(t){
+    if(t!==edTitle||!$('editdlg').classList.contains('on'))return;
+    var raw=nextRaw[t];edRaw=(raw&&!raw.none)?raw:null;
+    if(edWait){
+      edWait=false;$('edsave').disabled=false;edMsg(edRaw?'':'Film introuvable sur TMDB : tu peux tout renseigner à la main ou chercher le bon film.');
+      function fill(id,v){if(!edv(id)&&v)$(id).value=v}
+      if(edRaw){
+        fill('edtitleinp',edRaw.title);fill('edyear',edRaw.year);fill('edruntime',edRaw.runtime);
+        fill('edgenres',(edRaw.genres||[]).join(', '));fill('edover',edRaw.overview);fill('edtmdb',edRaw.id);
+      }
+      edBasePoster=(edRaw&&edRaw.poster)||(!ovrPosterSet[t]&&posters[t])||'';
+      if(!edPoster)edSetPoster(edBasePoster);
+    }
+  }
+  function closeEdit(){edTitle='';$('editdlg').classList.remove('on')}
+  function edSave(){
+    var t=edTitle,h=histEntry(t);if(!t)return;
+    var pv=edPoster.trim();
+    if(pv&&!/^(https:\/\/|data:image\/)/.test(pv)){edMsg('L’affiche doit être une URL https:// ou une image téléversée.',true);return}
+    var tm=parseInt(edv('edtmdb'),10)||0;
+    if(h){
+      h.num=parseInt(edv('ednum'),10)||0;
+      h.by=edv('edby').slice(0,40);
+      var dv=edv('eddate');h.date=dv?new Date(dv+'T12:00:00').getTime():0;
+      histSave();setNum();
+    }
+    var r=edRaw||{},o={},vt=edv('edtitleinp');
+    if(vt&&vt!==(r.title||t))o.title=vt.slice(0,120);
+    var vy=edv('edyear');if(/^\d{4}$/.test(vy)&&vy!==String(r.year||''))o.year=vy;
+    var vr=parseInt(edv('edruntime'),10)||0;if(vr>0&&vr!==(r.runtime||0))o.runtime=vr;
+    var vg=edv('edgenres').split(',').map(function(x){return x.trim()}).filter(Boolean).slice(0,8);
+    if(vg.length&&vg.join(', ')!==(r.genres||[]).join(', '))o.genres=vg;
+    var vo=($('edover').value||'').trim();if(vo&&vo!==(r.overview||''))o.overview=vo.slice(0,4000);
+    if(pv&&ovrNorm(pv)!==ovrNorm(edBasePoster))o.poster=pv;
+    if(tm&&tm!==(r.id||0))o.tmdb=tm;
+    var oldTm=(filmOvr[t]&&filmOvr[t].tmdb)||0;
+    if(hasKeys(o))filmOvr[t]=o;else delete filmOvr[t];
+    var tmChanged=(o.tmdb||0)!==oldTm;
+    syncOvrPosters();
+    if(tmChanged){delete nextRaw[t];delete nextInfo[t];if(!ovrPosterSet[t])delete posters[t];loadNext(t)}
+    rebuildInfo(t);
+    ovrTouch();refreshAll();closeEdit();
+    filmsSt('Modifications enregistrées pour « '+dispTitle(t)+' ».');
+  }
+  function edReset(){
+    var t=edTitle;if(!t||!filmOvr[t])return;
+    if(!confirm('Revenir aux infos TMDB d’origine pour ce film ? (le demandeur et le numéro ne changent pas)'))return;
+    delete filmOvr[t];syncOvrPosters();delete nextRaw[t];delete nextInfo[t];if(!ovrPosterSet[t])delete posters[t];loadNext(t);
+    rebuildInfo(t);ovrTouch();refreshAll();closeEdit();filmsSt('Infos de « '+t+' » réinitialisées.');
+  }
+  function edFile(file){
+    if(!file)return;edMsg('Traitement de l’image…');
+    var fr=new FileReader();
+    fr.onload=function(){
+      var im=new Image();
+      im.onload=function(){
+        var W=Math.min(600,im.width),H=Math.round(im.height*W/im.width),c=document.createElement('canvas');c.width=W;c.height=H;
+        var cx=c.getContext('2d');cx.fillStyle='#111';cx.fillRect(0,0,W,H);cx.drawImage(im,0,0,W,H);
+        var q=.86,u=c.toDataURL('image/jpeg',q);
+        while(u.length>420000&&q>.4){q-=.1;u=c.toDataURL('image/jpeg',q)}
+        edSetPoster(u);edMsg('Image prête (pense à enregistrer).');
+      };
+      im.onerror=function(){edMsg('Image illisible.',true)};
+      im.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+  function edPickPosters(){
+    var x=$('edextra');
+    if(!tmdbKey()){edMsg('Clé TMDB manquante (bouton Réglages).',true);return}
+    var id=parseInt(edv('edtmdb'),10)||(edRaw&&edRaw.id)||0;
+    if(!id){edMsg('Film introuvable sur TMDB : renseigne l’ID TMDB ou cherche le film.',true);return}
+    edMsg('Chargement des affiches…');
+    tmdbGet('/movie/'+id+'/images','&include_image_language=fr,en,null').then(function(j){
+      var ps=(j.posters||[]).slice().sort(function(a,b){return (b.vote_average||0)-(a.vote_average||0)}).slice(0,30);
+      x.innerHTML='';
+      if(!ps.length){edMsg('Aucune affiche disponible sur TMDB pour ce film.',true);return}
+      edMsg('Clique sur une affiche pour la choisir.');
+      var g=el('div','edgridp');
+      ps.forEach(function(p){
+        var b=el('button','');b.type='button';
+        var i=el('img');i.src='https://image.tmdb.org/t/p/w185'+p.file_path;i.alt='Affiche proposée';i.loading='lazy';b.appendChild(i);
+        b.onclick=function(){
+          [].slice.call(g.children).forEach(function(c){c.classList.remove('sel')});b.classList.add('sel');
+          edSetPoster('https://image.tmdb.org/t/p/w500'+p.file_path);
+        };
+        g.appendChild(b);
+      });
+      x.appendChild(g);
+    }).catch(function(){edMsg('Impossible de joindre TMDB.',true)});
+  }
+  function edSearchTmdb(){
+    var q=edv('edsearch'),x=$('edextra');
+    if(!q)return;
+    if(!tmdbKey()){edMsg('Clé TMDB manquante (bouton Réglages).',true);return}
+    edMsg('Recherche…');
+    tmdbGet('/search/movie','&include_adult=false&query='+encodeURIComponent(q)).then(function(j){
+      var rs=(j.results||[]).slice(0,8);x.innerHTML='';
+      if(!rs.length){edMsg('Aucun résultat sur TMDB.',true);return}
+      edMsg('Choisis le bon film : ses infos seront rechargées à l’enregistrement.');
+      rs.forEach(function(m){
+        var b=el('button','edres');b.type='button';
+        if(m.poster_path){var i=el('img');i.src='https://image.tmdb.org/t/p/w92'+m.poster_path;i.alt='';b.appendChild(i)}
+        var d=el('span');d.appendChild(document.createTextNode((m.title||'')+(m.release_date?' ('+m.release_date.slice(0,4)+')':'')));
+        d.appendChild(el('small','',(m.overview||'').slice(0,110)));b.appendChild(d);
+        b.onclick=function(){
+          $('edtmdb').value=m.id;
+          if(m.poster_path){edBasePoster='https://image.tmdb.org/t/p/w500'+m.poster_path;edSetPoster(edBasePoster)}
+          x.innerHTML='';edMsg('Film sélectionné : « '+(m.title||'')+' ». Enregistre pour recharger titre, synopsis, durée…');
+        };
+        x.appendChild(b);
+      });
+    }).catch(function(){edMsg('Impossible de joindre TMDB.',true)});
+  }
+  $('edclose').onclick=closeEdit;$('edcancel').onclick=closeEdit;
+  $('editdlg').onclick=function(e){if(e.target===this)closeEdit()};
+  $('edsave').onclick=edSave;$('edreset').onclick=edReset;
+  $('edupload').onclick=function(){$('edfile').click()};
+  $('edfile').onchange=function(){edFile(this.files&&this.files[0]);this.value=''};
+  $('edtmdbposters').onclick=edPickPosters;
+  $('edposterreset').onclick=function(){edSetPoster(edBasePoster);$('edextra').innerHTML=''};
+  $('edposter').oninput=function(){edSetPoster(this.value.trim());$('edposter').value=this.value};
+  $('edsearchbtn').onclick=edSearchTmdb;
+  $('edsearch').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();edSearchTmdb()}};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('editdlg').classList.contains('on')){e.stopImmediatePropagation();closeEdit()}},true);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)pullFilms()});
+  ovrLoadLocal();syncOvrPosters();rebuildAll();pullFilms();
   /* ---- profil d'un viewer ---- */
   function vkey(n){return String(n||'').trim().toLowerCase()}
   function fmt1(v){return v.toFixed(1).replace('.',',')}
@@ -2670,7 +3121,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     }
   }
   /* fondu + flou sur la page, et petit éclat sur la barre */
-  var TABS=['accueil','prochain','historique','letterboxd','rubis','roue'];
+  var TABS=['accueil','prochain','historique','letterboxd','rubis','admin','roue'];
   function cascade(id){
     var g=$(id);if(!g)return;
     casc.t=Date.now();
@@ -2684,14 +3135,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   }
   window.addEventListener('resize',function(){movePill(false)});
   function setTab(t){
-    t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain'||t==='roue')?t:'accueil';
-    if(t==='roue'&&!isAdmin)t='accueil';
+    t=(t==='historique'||t==='letterboxd'||t==='rubis'||t==='prochain'||t==='roue'||t==='admin')?t:'accueil';
+    if((t==='roue'||t==='admin')&&!isAdmin)t='accueil';
     var tabChanged=curTab!==null&&curTab!==t,tabDir=(tabChanged&&TABS.indexOf(t)<TABS.indexOf(curTab))?-1:1;curTab=t;
     document.body.classList.toggle('tab-home',t==='accueil');
     document.body.classList.toggle('tab-hist',t==='historique');
     document.body.classList.toggle('tab-next',t==='prochain');
     document.body.classList.toggle('tab-lb',t==='letterboxd');
     document.body.classList.toggle('tab-rubis',t==='rubis');
+    document.body.classList.toggle('tab-admin',t==='admin');
     navLinks.forEach(function(a){
       var on=a.getAttribute('href')==='#'+t;
       a.classList.toggle('on',on);
@@ -2699,6 +3151,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     });
     if(t==='accueil')homeEnter();
     if(t==='historique')renderHistory();
+    if(t==='admin')renderAdminTab();
     if(t==='prochain'){nAnimKey='';nextSig='';renderNext()}
     if(t==='letterboxd')renderLB();
     movePill(true);
@@ -2725,7 +3178,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     var b=$('adminbtn');b.textContent=isAdmin?'🔓 Admin':'🔒';
     b.title=isAdmin?'Connecté en admin':'Accès admin';
     $('admout').hidden=!isAdmin;
-    if(!isAdmin&&curTab==='roue'){setTab('accueil');try{history.replaceState(null,'','#accueil')}catch(e){}}
+    if(!isAdmin&&(curTab==='roue'||curTab==='admin')){setTab('accueil');try{history.replaceState(null,'','#accueil')}catch(e){}}
     movePill(false);
   }
   function openAdm(){
