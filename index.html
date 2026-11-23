@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* affiché dans le menu d'elmatte0.fr (iframe) : on cache le logo et on rend la barre discrète */
+try{if(window.self!==window.top)document.documentElement.classList.add('dans-elmatte0')}catch(e){document.documentElement.classList.add('dans-elmatte0')}
+</script>
 <title>Cinédimanche – La roue</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -760,6 +764,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .fedit input{min-height:40px}
   .slot .poster,.slot.r1 .poster{width:min(130px,60%)}
 }
+/* ===== affiché dans le menu d'elmatte0.fr : une seule barre, discrète ===== */
+.dans-elmatte0 .brand{display:none}
+.dans-elmatte0 nav{top:6px;margin:6px auto 0;padding:4px 6px;gap:2px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.07);box-shadow:none;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.dans-elmatte0 nav a{padding:7px 13px;font-size:13px}
+.dans-elmatte0 body.admin nav a{padding:7px 9px}
+.dans-elmatte0 .navpill{background:rgba(255,255,255,.9);box-shadow:none}
+.dans-elmatte0 nav #dot{padding:6px 10px;font-size:12px}
+.dans-elmatte0 nav #adminbtn{padding:5px 9px;min-height:0;font-size:12px}
+.dans-elmatte0 .astage{--navh:52px}
 </style>
 </head>
 <body>
