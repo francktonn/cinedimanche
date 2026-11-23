@@ -981,19 +981,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <div class="spane" id="sp-cine" role="tabpanel">
     <label class="f" for="cnum">Numéro du prochain Cinédimanche (automatique : dernier numéro de l’historique + 1)</label>
     <input id="cnum" type="number" readonly>
-    <label class="f" for="tmdbkey">Clé API TMDB (affiches des films, gratuite sur themoviedb.org)</label>
-    <input id="tmdbkey" type="password" placeholder="Clé API v3 ou jeton de lecture v4" autocomplete="off">
+    <p style="font-size:12px;margin:14px 0 0">Les affiches TMDB passent par le serveur (variable Vercel <b>TMDB_KEY</b>) : aucune clé à saisir ici.</p>
+    <input id="tmdbkey" type="hidden">
     <label class="f">Sauvegarde automatique de l’historique</label>
     <p id="filest"></p>
     <div class="brow"><button id="filelink" class="soft" type="button">Choisir le fichier historique.js</button></div>
   </div>
   <div class="spane" id="sp-discord" role="tabpanel">
-    <label class="f" for="bothook">Adresse de réception (ex. https://ton-bot.onrender.com/cine)</label>
-    <input id="bothook" type="text" placeholder="https://…/cine" autocomplete="off">
-    <label class="f" for="bothooksecret">Mot de passe (CINE_WEBHOOK_SECRET)</label>
-    <input id="bothooksecret" type="password" placeholder="Le même que dans le .env du bot" autocomplete="off">
-    <label class="f" for="bothookguild">ID du serveur (seulement si le bot est sur plusieurs serveurs)</label>
-    <input id="bothookguild" type="text" placeholder="Facultatif" autocomplete="off">
+    <p>L’envoi du film au bot Discord passe maintenant par le serveur (<code>/api/cine</code>). L’adresse et le mot de passe du bot se règlent dans les variables d’environnement Vercel : <b>CINE_HOOK_URL</b>, <b>CINE_WEBHOOK_SECRET</b> (et <b>CINE_GUILD_ID</b> si besoin). Rien à saisir ici.</p>
+    <div hidden><input id="bothook" type="text"><input id="bothooksecret" type="password"><input id="bothookguild" type="text"></div>
   </div>
 </div>
   <div class="botfoot">
@@ -1260,7 +1256,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     Object.keys(ovrPosterSet).forEach(function(t){if(!(filmOvr[t]&&filmOvr[t].poster)){delete ovrPosterSet[t];delete posters[t]}});
     Object.keys(filmOvr).forEach(function(t){if(filmOvr[t].poster){posters[t]=filmOvr[t].poster;ovrPosterSet[t]=1}});
   }
-  function tmdbKey(){return ($('tmdbkey').value||'').trim()}
+  /* la clé TMDB est désormais sur le serveur (/api/tmdb) : ce marqueur indique seulement que TMDB est disponible */
+  function tmdbKey(){return 'serveur'}
   function parseFilm(t){var m=t.match(/^(.*?)[\s(\[]*((?:19|20)\d\d)[)\]]?\s*$/);return m&&m[1].trim()?{q:m[1].trim(),y:m[2]}:{q:t.trim(),y:''}}
   function loadPoster(title){
     var k=tmdbKey();
@@ -1274,9 +1271,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       return;
     }
     function search(withYear){
-      var u='https://api.themoviedb.org/3/search/movie?include_adult=false&language=fr-FR&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'');
-      if(k.length>40)h.Authorization='Bearer '+k;else u+='&api_key='+encodeURIComponent(k);
-      return fetch(u,{headers:h}).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()}).then(function(j){
+      var u='/api/tmdb?path=%2Fsearch%2Fmovie&include_adult=false&language=fr-FR&query='+encodeURIComponent(p.q)+(withYear&&p.y?'&year='+p.y:'');
+      return fetch(u).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()}).then(function(j){
         return (j.results||[]).filter(function(x){return x.poster_path})[0]||null});
     }
     search(true).then(function(r){return r||(p.y?search(false):null)}).then(function(r){
@@ -1444,19 +1440,23 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     tg.textContent=showAll?'Voir seulement le gagnant':'Voir les 3 vainqueurs';
   }
   /* envoi du film choisi au bot Discord (annonce du dimanche à 12h) */
-  function hookSave(){try{localStorage.setItem('cine_hook',JSON.stringify({u:$('bothook').value.trim(),s:$('bothooksecret').value.trim(),g:$('bothookguild').value.trim()}))}catch(e){}}
+  /* l'envoi au bot passe par /api/cine : le mot de passe du bot reste sur le serveur Vercel */
+  function hookSave(){}
   function cineSync(film,by,num,tries){
-    var u=$('bothook').value.trim(),sec=$('bothooksecret').value.trim();
-    if(!u||!sec){pollNote('Vote terminé. Film NON envoyé au bot : renseigne l’adresse et le mot de passe du bot dans les Réglages.',true);return}
+    var sec=syncSecret();
+    if(!sec){pollNote('Vote terminé. Film NON envoyé au bot : connecte-toi en admin (🔒).',true);return}
     tries=tries||1;
     pollNote('Vote terminé. Envoi du film au bot Discord'+(tries>1?' (tentative '+tries+'/4, le bot se réveille peut-être)':'')+'…');
-    fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({secret:sec,film:film,by:by,num:num,poster:posters[film]||'',guild_id:$('bothookguild').value.trim()})})
-      .then(function(r){return r.json().catch(function(){return{}})})
-      .then(function(j){pollNote(j.ok?'Vote terminé. Film envoyé au bot Discord ✅':'Vote terminé. Bot Discord : '+(j.error||'réponse inattendue'),!j.ok)})
-      .catch(function(){
-        if(tries<4){setTimeout(function(){cineSync(film,by,num,tries+1)},15000)}
-        else pollNote('Vote terminé. Bot injoignable après 4 tentatives (adresse incorrecte, bot pas à jour ou hors ligne). Utilise /cine film.',true);
-      });
+    function retry(){
+      if(tries<4){setTimeout(function(){cineSync(film,by,num,tries+1)},15000)}
+      else pollNote('Vote terminé. Bot injoignable après 4 tentatives (adresse incorrecte, bot pas à jour ou hors ligne). Utilise /cine film.',true);
+    }
+    fetch('/api/cine',{method:'POST',headers:{'Content-Type':'application/json','x-secret':sec},body:JSON.stringify({film:film,by:by,num:num,poster:posters[film]||'',guild_id:$('bothookguild').value.trim()})})
+      .then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{st:r.status,j:j}})})
+      .then(function(o){
+        if(o.st===502||o.st===504){retry();return}
+        var j=o.j;pollNote(j.ok?'Vote terminé. Film envoyé au bot Discord ✅':'Vote terminé. Bot Discord : '+(j.error||'réponse inattendue'),!j.ok)})
+      .catch(retry);
   }
   function tmdbSave(){try{localStorage.setItem('cine_tmdb',tmdbKey())}catch(e){}}
   /* ---- historique des films votés ---- */
@@ -1934,16 +1934,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   $('bottest').onclick=function(){botSave();botRun()};
   $('botforget').onclick=function(){$('rwtoken').value='';esStop();esCtx=null;rwSave();$('bottoken').value='';$('botremember').checked=false;bot.ctx=null;botSave();botNote('Token oublié.')};
   $('botauto').onchange=botSave;botLoad();
-  try{var tk=localStorage.getItem('cine_tmdb');if(tk)$('tmdbkey').value=tk}catch(e){}
-  try{var hk=JSON.parse(localStorage.getItem('cine_hook')||'null');if(hk){$('bothook').value=hk.u||'';$('bothooksecret').value=hk.s||'';$('bothookguild').value=hk.g||''}}catch(e){}
+  /* anciennes valeurs sensibles enregistrées dans ce navigateur : supprimées */
+  try{localStorage.removeItem('cine_tmdb');localStorage.removeItem('cine_hook')}catch(e){}
   /* valeurs fixes du site (config.js) : elles prennent le pas sur celles enregistrées dans le navigateur */
   (function(){
     var C=window.CINE_CONFIG||{};
-    if(C.tmdb){$('tmdbkey').value=String(C.tmdb).trim()}
     if(C.channel&&!$('channel').value){$('channel').value=String(C.channel).trim()}
-    if(C.hook){$('bothook').value=String(C.hook).trim()}
-    if(C.hookSecret){$('bothooksecret').value=String(C.hookSecret).trim()}
-    if(C.guild){$('bothookguild').value=String(C.guild).trim()}
   })();
   $('bothook').onchange=$('bothooksecret').onchange=$('bothookguild').onchange=hookSave;
   $('tmdbkey').onchange=function(){tmdbSave();posters={};nextInfo={};nextSig='';render();listenUI();botNote('Clé TMDB enregistrée.')};
@@ -2449,9 +2445,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     return {t:s.film,manual:false,by:s.by||'',num:s.num||0};
   }
   function tmdbGet(path,params,lang){
-    var k=tmdbKey(),h={},u='https://api.themoviedb.org/3'+path+'?language='+(lang||'fr-FR')+(params||'');
-    if(k.length>40)h.Authorization='Bearer '+k;else u+='&api_key='+encodeURIComponent(k);
-    return fetch(u,{headers:h}).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()});
+    var u='/api/tmdb?path='+encodeURIComponent(path)+'&language='+(lang||'fr-FR')+(params||'');
+    return fetch(u).then(function(r){if(!r.ok)throw new Error('tmdb');return r.json()});
   }
   function loadNext(title){
     if(!title||!tmdbKey()||(title in nextRaw)||nextPend[title])return;
